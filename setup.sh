@@ -6,6 +6,8 @@ for dotfile in .?*; do
       continue;;
     .git)
       continue;;
+    vim-setup.bat)
+      continue;;
     *)
       ln -Fis "$PWD/$dotfile" $HOME
       ;;
