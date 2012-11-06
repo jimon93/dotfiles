@@ -528,6 +528,7 @@ NeoBundle 'https://github.com/Shougo/vimfiler.git'
 NeoBundle 'https://github.com/pangloss/vim-javascript.git'
 NeoBundle 'https://github.com/ujihisa/unite-colorscheme.git'
 NeoBundle 'https://github.com/ujihisa/unite-font.git'
+NeoBundle 'https://github.com/digitaltoad/vim-jade.git'
 
 filetype plugin indent on
 " ------------------------------------------------------------------------------
@@ -603,12 +604,12 @@ function! s:unite_source.gather_candidates(args,context)
   "for val in data
   "  let loading = loading.":sou ".val[0]."<CR>"
   "endfor
-  call insert( result,{
-        \"word"              : "load files    -- Load from setting files",
-        \"source"            : "setting",
-        \"kind"              : "command",
-        \"action__command"   : ":cd",
-      \}, 0 )
+  "call insert( result,{
+  "      \"word"              : "load files    -- Load from setting files",
+  "      \"source"            : "setting",
+  "      \"kind"              : "command",
+  "      \"action__command"   : ":cd",
+  "    \}, 0 )
   return result
 endfunction
 call unite#define_source( s:unite_source )
@@ -780,14 +781,16 @@ vnoremap <silent> <leader>d :<C-u>call ref#jump('visual', 'webdict')<CR>
 "let QFixHowm_SaveTime   = 2
 
 " ------------------------------------------------------------------------------
-"  Cofee-Script
+"  拡張子 → ファイルタイプ
 " ------------------------------------------------------------------------------
 autocmd BufNewFile,BufRead *.coffee set filetype=coffee
+autocmd BufNewFile,BufRead *.jade set filetype=jade
 
 " ------------------------------------------------------------------------------
 "  ChangeLog
 " ------------------------------------------------------------------------------
 noremap <Leader>o :e $MY_VIMRUNTIME/ChangeLog<CR>
+autocmd FileType changelog set formatoptions=lmq
 let g:changelog_timeformat = "%Y-%m-%d"
 let g:changelog_username = "jimon"
 
