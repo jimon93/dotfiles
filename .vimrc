@@ -526,15 +526,19 @@ NeoBundle 'https://github.com/Shougo/vimfiler.git'
 "NeoBundle 'git://github.com/Sixeight/unite-grep.git'
 "NeoBundle 'git://github.com/Shougo/vimproc.git'
 NeoBundle 'https://github.com/pangloss/vim-javascript.git'
-NeoBundle 'https://github.com/ujihisa/unite-colorscheme.git'
-NeoBundle 'https://github.com/ujihisa/unite-font.git'
+"NeoBundle 'https://github.com/ujihisa/unite-colorscheme.git'
+"NeoBundle 'https://github.com/ujihisa/unite-font.git'
 NeoBundle 'https://github.com/digitaltoad/vim-jade.git'
 
 filetype plugin indent on
 " ------------------------------------------------------------------------------
 " Align
 " ------------------------------------------------------------------------------
+let g:Align_xstrlen=3
+let g:loaded_AlignMapsPlugin="not necessary"
+let g:loaded_cecutil="not necessary"
 vnoremap <C-a> :Align<Space>
+
 " ------------------------------------------------------------------------------
 " Unite
 " ------------------------------------------------------------------------------
