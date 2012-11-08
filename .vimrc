@@ -42,7 +42,12 @@ elseif isdirectory($HOME . '\vimfiles')
 elseif isdirectory($VIM . '\vimfiles')
   let $MY_VIMRUNTIME = $VIM.'\vimfiles'
 endif
-let $MY_DROPBOX = $HOME.'\Dropbox'
+
+if isdirectory($HOME . '/Dropbox')
+  let $MY_DROPBOX = $HOME.'/Dropbox'
+elseif isdirectory($VIM . '\Dropbox')
+  let $MY_DROPBOX = $HOME.'\Dropbox'
+endif
 
 
 "-------------------------------------------------------------------------------
@@ -75,19 +80,6 @@ set clipboard+=unnamed
 "set mouse=a
 "set guioptions+=a
 "set ttymouse=xterm2
-
-
-"------------------------------------------------------------
-" 設定ファイル SettingFile
-"------------------------------------------------------------
-" 呼び出し
-"noremap <Leader>.  <ESC>:<C-u>tabedit<Space>$MYVIMRC<Return>
-"noremap <Leader>.. <ESC>:<C-u>tabedit<Space>$MYVIMRC<Return>
-"noremap <Leader>.g <ESC>:<C-u>tabedit<Space>$MYGVIMRC<Return>
-" 読み込み
-noremap <Leader>l <ESC>:<C-u>sou<Space>$MYVIMRC<Return>
-      \                :<C-u>sou<Space>$MYGVIMRC<Return>
-"      \                :echo "Setting file is loaded complete!"<CR>
 
 
 "-------------------------------------------------------------------------------
@@ -318,7 +310,7 @@ vnoremap v $h
 
 " カレントディレクトリをファイルのディレクトリに変更する
 nnoremap <Leader>cd :cd %:h<CR>:pwd<CR>
-nnoremap <Leader>home  :cd $HOME<CR>:pwd<CR>
+"nnoremap <Leader>home  :cd $HOME<CR>:pwd<CR>
 
 
 "-------------------------------------------------------------------------------
@@ -583,6 +575,22 @@ endfunction
 "au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
 "au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
 
+"------------------------------------------------------------
+" 設定ファイル SettingFile
+"------------------------------------------------------------
+" 読み込み
+if !exists("s:setting_load_function")
+  let s:setting_load_function="loaded"
+  function g:setting_load()
+    if exists("$MYVIMRC")
+      source $MYVIMRC
+    endif
+    if exists("$MYGVIMRC")
+      source $MYGVIMRC
+    endif
+  endfunction
+endif
+"noremap <Leader>l <silent> :call g:setting_load()<Cr>
 " ソースの作成
 let s:unite_source = {
       \'name'        : 'setting',
@@ -604,16 +612,12 @@ function! s:unite_source.gather_candidates(args,context)
         \"action__directory" : fnamemodify( v:val[1], ":h"),
         \"action__path"      : v:val[1],
         \}' )
-  "let loading = ""
-  "for val in data
-  "  let loading = loading.":sou ".val[0]."<CR>"
-  "endfor
-  "call insert( result,{
-  "      \"word"              : "load files    -- Load from setting files",
-  "      \"source"            : "setting",
-  "      \"kind"              : "command",
-  "      \"action__command"   : ":cd",
-  "    \}, 0 )
+  call insert( result,{
+        \"word"              : "load files    -- Load from setting files",
+        \"source"            : "setting",
+        \"kind"              : "command",
+        \"action__command"   : ":call g:setting_load()",
+      \}, 0 )
   return result
 endfunction
 call unite#define_source( s:unite_source )
@@ -793,7 +797,7 @@ autocmd BufNewFile,BufRead *.jade set filetype=jade
 " ------------------------------------------------------------------------------
 "  ChangeLog
 " ------------------------------------------------------------------------------
-noremap <Leader>o :e $MY_VIMRUNTIME/ChangeLog<CR>
+noremap <Leader>o :e $MY_DROPBOX/Docs/ChangeLog<CR>
 autocmd FileType changelog set formatoptions=lmq
 let g:changelog_timeformat = "%Y-%m-%d"
 let g:changelog_username = "jimon"
