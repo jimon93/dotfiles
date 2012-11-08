@@ -196,3 +196,6 @@ fi
 
 ## load user .zshrc configuration file
 [ -f ~/.zshrc.mine ] && source ~/.zshrc.mine
+
+# This loads NVM
+[ -f "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh"
