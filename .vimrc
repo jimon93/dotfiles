@@ -1,4 +1,4 @@
-"** 目次 **
+"** 目次 ** {{{
 " * 基礎
 "   - パス設定         UserRuntimePath
 "   - 基本設定         Basics
@@ -23,9 +23,9 @@
 "   - vim-ref
 " * その他
 
-
+"}}}
 "*******************
-" 基礎
+" 基礎          "{{{
 "*******************
 
 
@@ -139,27 +139,28 @@ endfunc
 set showmatch         " 括弧の対応をハイライト
 "set number            " 行番号表示
 set list              " 不可視文字表示
-set listchars=tab:>.,trail:_,extends:>,precedes:< " 不可視文字の表示形式
+"set listchars=tab:\|_,trail:_,extends:>,precedes:< " 不可視文字の表示形式
+set listchars=tab:▸\ ,trail:_,extends:>,precedes:< " 不可視文字の表示形式
 set display=uhex      " 印字不可能文字を16進数で表示
 
 " 全角スペースの表示
-"highlight ZenkakuSpace cterm=underline ctermfg=lightblue guibg=darkgray
-"match ZenkakuSpace / /
-
+highlight ZenkakuSpace cterm=underline ctermfg=lightblue guibg=darkgray
+match ZenkakuSpace /　/
 
 " カーソル行をハイライト
 set cursorline
+"set nocursorline
 
 " カレントウィンドウにのみ罫線を引く
-augroup cch
-  autocmd! cch
-  autocmd WinLeave * set nocursorline
-  autocmd WinEnter,BufRead * set cursorline
-augroup END
+"augroup cch
+"  autocmd! cch
+"  autocmd WinLeave * set nocursorline
+"  autocmd WinEnter,BufRead * set cursorline
+"augroup END
 
-hi clear CursorLine
-hi CursorLine gui=underline
-highlight CursorLine ctermbg=black guibg=black
+"hi clear CursorLine
+"hi CursorLine gui=underline
+"highlight CursorLine ctermbg=black guibg=black
 
 " コマンド実行中は再描画しない
 set lazyredraw
@@ -429,6 +430,7 @@ vnoremap p <Esc>:let current_reg = @"<CR>gvdi<C-R>=current_reg<CR><Esc>
 
 " Tabキーを空白に変換
 set expandtab
+"set noexpandtab
 
 " コンマの後に自動的にスペースを挿入
 "inoremap , ,<Space>
@@ -439,10 +441,17 @@ augroup MyXML
 augroup END
 
 " 保存時に行末の空白を除去する
-autocmd BufWritePre * :%s/\s\+$//ge
-" 保存時にtabをスペースに変換する
-autocmd BufWritePre * :%s/\t/  /ge
-"autocmd BufWritePre * :%s/ / /ge
+function! s:remove_dust()
+  let cursor = getpos(".")
+  " 保存時に行末の空白を除去する
+  %s/\s\+$//ge
+  " 保存時にtabを2スペースに変換する
+  "%s/\t/  /ge
+  retab
+  call setpos(".", cursor)
+  unlet cursor
+endfunction
+autocmd BufWritePre * call <SID>remove_dust()
 
 "<Leader><Leader>で変更があれば保存
 noremap <Leader><Leader> :up<CR>
@@ -457,6 +466,148 @@ set foldmethod=marker
 "set foldclose=all
 "set foldcolumn=4
 
+"各種変数 "{{{
+"g:foldCCtext_shorten foldtextが長すぎるときこの値に切り詰め（規定:77）
+if !exists('g:foldCCtext_shorten')
+  let g:foldCCtext_shorten = 77
+endif
+
+"g:foldCCtext_printf foldtextの後ろに表示される内容（規定:'[%4d lines  Lv%-2d]'）
+if !exists('g:foldCCtext_printf')
+  let g:foldCCtext_printf = '[%4d lines  Lv%-2d]'
+endif
+
+"g:foldCCtext_printf_strlen g:foldCCtext_printfで表示される文字数（規定:21）
+" g:foldCCtext_printfを変更したときには数え直して変更してください
+" 将来スクリプトローカル化して自動で数えるようにしたいなぁ（願望）
+if !exists('g:foldCCtext_printf_strlen')
+  let g:foldCCtext_printf_strlen = 18
+endif
+
+"g:foldCCnavi_shorten 折畳表示が長すぎるときこの値で切り詰め（規定:60）
+if !exists('g:foldCCnavi_shorten')
+  let g:foldCCnavi_shorten = 60
+endif
+ "}}}
+
+
+"折り畳み関数"{{{
+function! FoldCCtext()
+  "rol; set foldtext=FoldCCtext()に設定して折り畳んだときのテキスト生成
+
+  "表示するテキストの作成（折り畳みマーカーを除去）
+  let line = s:rm_CmtAndFmr(v:foldstart)
+
+  "切り詰めサイズをウィンドウに合わせる"{{{
+  let regardMultibyte =strlen(line) -strdisplaywidth(line)
+
+  let line_width = winwidth(0) - &foldcolumn
+  if &number == 1 "行番号表示オンのとき
+      let line_width -= max([&numberwidth, len(line('$'))])
+  endif
+
+  if line_width > g:foldCCtext_shorten
+    let line_width = g:foldCCtext_shorten
+  endif
+
+  let alignment = line_width - g:foldCCtext_printf_strlen+3 - 6 + regardMultibyte
+    "g:foldCCtext_printf_strlenはprintf()で消費する分、3はつなぎの空白文字、6はfolddasesを使うための余白
+    "issue:regardMultibyteで足される分が多い （61桁をオーバーして切り詰められてる場合
+  "}}} obt; alignment
+
+  let line = s:arrange_multibyte_str(printf('%-'.alignment.'.'.alignment.'s',line))
+
+  return printf('%s   %s'.    g:foldCCtext_printf.    '%s',
+        \ line, v:folddashes,    v:foldend-v:foldstart+1, v:foldlevel,    v:folddashes)
+endfunction
+"}}}
+
+
+function! FoldCCnavi() "{{{
+  "wrk; 現在行の折り畳みナビゲート文字列を返す
+  if foldlevel('.')
+    let save_csr=winsaveview()
+    let parentList=[]
+
+    let ClosedFolding_firstline = foldclosed('.')
+    "カーソル行が折り畳まれているとき"{{{
+    if ClosedFolding_firstline != -1
+      call insert(parentList, s:surgery_line(ClosedFolding_firstline) )
+      if foldlevel('.') == 1
+        call winrestview(save_csr)
+        return join(parentList,' > ')
+      endif
+
+      normal! [z
+      if foldclosed('.') ==ClosedFolding_firstline
+        call winrestview(save_csr)
+        return join(parentList,' > ')
+      endif
+    endif "}}}
+
+    "折畳を再帰的に戻れるとき"{{{
+    let geted_linenr = 0
+    while 1
+      normal! [z
+      if geted_linenr == line('.') "同一行にFoldingMarkerが重なってると無限ループになる問題の暫定的解消
+        break
+      endif
+
+      call insert(parentList, s:surgery_line('.') )
+      if foldlevel('.') == 1
+        break
+      endif
+      let geted_linenr = line('.')
+    endwhile
+    call winrestview(save_csr)
+    return join(parentList,' > ') "}}}
+
+  else
+    "折り畳みの中にいないとき
+    return ''
+  endif
+endfunction
+"}}}
+
+
+function! s:rm_CmtAndFmr(lnum) "{{{
+  "wrk; a:lnum行目の文字列を取得し、そこからcommentstringとfoldmarkersを除いたものを返す
+  "rol; 折り畳みマーカー（とそれを囲むコメント文字）を除いた純粋な行の内容を得る
+  let line = getline(a:lnum)
+
+  let comment = split(&commentstring, '%s')
+  if &commentstring =~? '^%s' "コメント文字が定義されてない時の対応
+    call insert(comment,'')
+  endif
+  let comment[0] = substitute(comment[0],'\s','','g') "コメント文字に空白文字が含まれているときの対応
+
+  let comment_end =''
+  if len(comment) > 1
+    let comment_end = comment[1]
+  endif
+  let foldmarkers = split(&foldmarker, ',')
+
+  let line = substitute(line,'\V\%('.comment[0].'\)\?\s\*'.foldmarkers[0].'\%(\d\+\)\?\s\*\%('.comment_end.'\)\?', '','')
+  return line
+endfunction "}}}
+
+
+function! s:surgery_line(lnum) "{{{
+  "wrk; a:lnum行目の内容を得て、マルチバイトも考慮しながら切り詰めを行ったものを返す
+  let line = substitute(s:rm_CmtAndFmr(a:lnum),'\V\s','','g')
+  let regardMultibyte = len(line) - strdisplaywidth(line)
+  let alignment = g:foldCCnavi_shorten + regardMultibyte
+  return s:arrange_multibyte_str(line[:alignment])
+endfunction "}}}
+
+
+"マルチバイト文字が途中で切れると発生する<83><BE>などの文字を除外させる
+function! s:arrange_multibyte_str(str) "{{{
+  return substitute(strtrans(a:str), '<\x\x>','','g')
+endfunction "}}}
+
+
+set foldtext=FoldCCtext()
 " .txtの場合 アウトライン用インデント設定 {{{
 function! OutLineFoldSetting(lnum)
   let l:now = getline(a:lnum)
@@ -478,12 +629,10 @@ endfunction
 autocmd BufEnter *.txt setlocal foldmethod=expr foldexpr=OutLineFoldSetting(v:lnum) foldlevel=1
 "}}}
 
-
+"}}}
 "*******************
-" Plugin
+" Plugin        "{{{
 "*******************
-
-
 "-------------------------------------------------------------------------------
 " Pluginの読み込み Load
 "-------------------------------------------------------------------------------
@@ -499,6 +648,7 @@ endif
 "  call singleton#enable() " 多重起動禁止
 "endif
 
+" plugin ------------------------------------------------------------ {{{
 NeoBundle 'https://github.com/Shougo/neobundle.vim.git'
 NeoBundle 'https://github.com/Shougo/neocomplcache.git'
 "NeoBundle 'https://github.com/Shougo/neocomplcache-snippets-complete.git'
@@ -521,7 +671,14 @@ NeoBundle 'https://github.com/pangloss/vim-javascript.git'
 "NeoBundle 'https://github.com/ujihisa/unite-colorscheme.git'
 "NeoBundle 'https://github.com/ujihisa/unite-font.git'
 NeoBundle 'https://github.com/digitaltoad/vim-jade.git'
-
+"NeoBundle 'https://github.com/plasticboy/vim-markdown.git'
+NeoBundle 'https://github.com/tpope/vim-markdown.git'
+"}}}
+" scheme ------------------------------------------------------------ "{{{
+NeoBundle 'https://github.com/nanotech/jellybeans.vim.git'
+NeoBundle 'https://github.com/chriskempson/tomorrow-theme.git'
+NeoBundle 'molokai'
+"}}}
 filetype plugin indent on
 " ------------------------------------------------------------------------------
 " Align
@@ -532,7 +689,7 @@ let g:loaded_cecutil="not necessary"
 vnoremap <C-a> :Align<Space>
 
 " ------------------------------------------------------------------------------
-" Unite
+" Unite                                                                      {{{
 " ------------------------------------------------------------------------------
 " unite.vim
 " 入力モードで開始する
@@ -560,7 +717,7 @@ nnoremap <C-n> :Unite bookmark file file/new file_mru<CR>
 
 autocmd FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
-  silent! nunmap <buffer> <ESC><ESC>
+  "silent! nunmap <buffer> <ESC><ESC>
   silent! nmap <buffer> <Esc> <Plug>(unite_exit)
   silent! nmap <buffer> <Space><Space> <Plug>(unite_toggle_mark_current_candidate)
   silent! nmap <buffer> s <Plug>(unite_toggle_mark_current_candidate)
@@ -574,7 +731,6 @@ endfunction
 " ESCキーを2回押すと終了する
 "au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
 "au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
-
 "------------------------------------------------------------
 " 設定ファイル SettingFile
 "------------------------------------------------------------
@@ -622,8 +778,9 @@ function! s:unite_source.gather_candidates(args,context)
 endfunction
 call unite#define_source( s:unite_source )
 unlet s:unite_source
-nnoremap <Leader>s :Unite setting<CR>
+nnoremap <Leader>s :Unite -no-start-insert setting<CR>
 
+"}}}
 " ------------------------------------------------------------------------------
 " Neocomplcache
 " ------------------------------------------------------------------------------
@@ -788,23 +945,28 @@ vnoremap <silent> <leader>d :<C-u>call ref#jump('visual', 'webdict')<CR>
 ""タイムスタンプを更新日時に変更（カーソルがあるエントリの日時を変更）
 "let QFixHowm_SaveTime   = 2
 
+"}}}
+"*******************
+" その他        "{{{
+"*******************
 " ------------------------------------------------------------------------------
-"  拡張子 → ファイルタイプ
+"  拡張子 ->  ファイルタイプ
 " ------------------------------------------------------------------------------
 autocmd BufNewFile,BufRead *.coffee set filetype=coffee
 autocmd BufNewFile,BufRead *.jade set filetype=jade
-
+autocmd BufNewFile,BufRead *.mkd set filetype=markdown
+autocmd BufNewFile,BufRead *.md  set filetype=markdown
+autocmd FileType markdown setlocal tabstop=4 shiftwidth=4 softtabstop=0
+autocmd FileType * setlocal formatoptions-=ro
 " ------------------------------------------------------------------------------
 "  ChangeLog
 " ------------------------------------------------------------------------------
-noremap <Leader>o :e $MY_DROPBOX/Docs/ChangeLog<CR>
-autocmd FileType changelog set formatoptions=lmq
+if exists("$MY_DROPBOX/Docs/ChangeLog")
+  noremap <Leader>o :e $MY_DROPBOX/Docs/ChangeLog<CR>
+endif
+autocmd FileType changelog setlocal formatoptions-=tc
 let g:changelog_timeformat = "%Y-%m-%d"
 let g:changelog_username = "jimon"
-
-"********************
-"  その他
-"********************
 
 "" Open Junk File {{{
 "command! -nargs=0 JunkFile call s:open_junk_file()
@@ -828,3 +990,6 @@ autocmd BufNewFile *.cpp 0r $MY_VIMRUNTIME/template/cpp.cpp
 
 " mapping
 command! Mapping Unite output:map|map!|lmap
+
+"}}}
+"*******************
