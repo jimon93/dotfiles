@@ -4,7 +4,7 @@ export LC_CTYPE=ja_JP.UTF-8
 export LANG=ja_JP.UTF-8
 export LC_ALL=ja_JP.UTF-8
 export PAGER=less
-export EDITOR=ee
+export EDITOR=vim
 
 ## PATH
 export PATH=${PATH}:${HOME}/bin:/usr/local/bin:/usr/local/sbin:/usr/local/share/hyperestraier/filter
