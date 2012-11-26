@@ -636,6 +636,7 @@ autocmd BufEnter *.txt setlocal foldmethod=expr foldexpr=OutLineFoldSetting(v:ln
 "-------------------------------------------------------------------------------
 " Pluginの読み込み Load
 "-------------------------------------------------------------------------------
+" NeoBundle の設定 {{{
 filetype plugin indent off
 if has('vim_starting')
   execute ":set runtimepath+=".$MY_VIMRUNTIME."/bundle/neobundle.vim/"
@@ -648,8 +649,11 @@ endif
 "  call singleton#enable() " 多重起動禁止
 "endif
 
+"}}}
 " plugin ------------------------------------------------------------ {{{
-NeoBundle 'https://github.com/Shougo/neobundle.vim.git'
+NeoBundle 'https://github.com/Shougo/vimproc.git'
+NeoBundle 'https://github.com/Shougo/vimshell.git'
+"NeoBundle 'https://github.com/Shougo/neobundle.vim.git'
 NeoBundle 'https://github.com/Shougo/neocomplcache.git'
 "NeoBundle 'https://github.com/Shougo/neocomplcache-snippets-complete.git'
 NeoBundle 'https://github.com/Shougo/neosnippet.git'
@@ -662,7 +666,9 @@ NeoBundle 'https://github.com/thinca/vim-quickrun.git'
 "NeoBundle 'https://github.com/sjl/gundo.vim.git'
 NeoBundle 'https://github.com/soh335/vim-ref-jquery.git'
 "NeoBundle 'https://github.com/kana/vim-fakeclip.git'
-"NeoBundle 'git://github.com/t9md/vim-textmanip.git'
+NeoBundle 'httpd://github.com/t9md/vim-textmanip.git'
+NeoBundle 'https://github.com/Lokaltog/vim-easymotion.git'
+"NeoBundle 'https://github.com/nathanaelkane/vim-indent-guides.git'
 NeoBundle 'https://github.com/thinca/vim-ref.git'
 NeoBundle 'https://github.com/Shougo/vimfiler.git'
 "NeoBundle 'git://github.com/Sixeight/unite-grep.git'
@@ -673,6 +679,7 @@ NeoBundle 'https://github.com/pangloss/vim-javascript.git'
 NeoBundle 'https://github.com/digitaltoad/vim-jade.git'
 "NeoBundle 'https://github.com/plasticboy/vim-markdown.git'
 NeoBundle 'https://github.com/tpope/vim-markdown.git'
+NeoBundle 'https://github.com/vim-jp/vimdoc-ja.git'
 "}}}
 " scheme ------------------------------------------------------------ "{{{
 NeoBundle 'https://github.com/nanotech/jellybeans.vim.git'
@@ -681,13 +688,14 @@ NeoBundle 'molokai'
 "}}}
 filetype plugin indent on
 " ------------------------------------------------------------------------------
-" Align
+" Align {{{
 " ------------------------------------------------------------------------------
 let g:Align_xstrlen=3
 let g:loaded_AlignMapsPlugin="not necessary"
 let g:loaded_cecutil="not necessary"
 vnoremap <C-a> :Align<Space>
 
+"}}}
 " ------------------------------------------------------------------------------
 " Unite                                                                      {{{
 " ------------------------------------------------------------------------------
@@ -782,7 +790,7 @@ nnoremap <Leader>s :Unite -no-start-insert setting<CR>
 
 "}}}
 " ------------------------------------------------------------------------------
-" Neocomplcache
+" Neocomplcache {{{
 " ------------------------------------------------------------------------------
 " NeoComplCacheを有効にする
 let g:acp_enableAtStartup = 0
@@ -857,9 +865,9 @@ let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
 let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
 
-
+"}}}
 " ------------------------------------------------------------------------------
-" vimfiler
+" vimfiler {{{
 " ------------------------------------------------------------------------------
 " netrw っぽく
 let g:vimfiler_as_default_explorer = 1
@@ -891,12 +899,15 @@ function! my_action.func(candidates)
 endfunction
 call unite#custom_action('file', 'my_vsplit', my_action)
 
+"}}}
 " ------------------------------------------------------------------------------
-" quickrun
+" quickrun {{{
 " ------------------------------------------------------------------------------
 noremap <Leader>r <Plug>(quickrun)
+
+"}}}
 " ------------------------------------------------------------------------------
-" vim-ref
+" vim-ref {{{
 " ------------------------------------------------------------------------------
 let g:ref_source_webdict_sites = {
       \   'wiktionary': {
@@ -914,19 +925,34 @@ nnoremap <silent> <leader>d :<C-u>call ref#jump('normal', 'webdict')<CR>
 vnoremap <silent> <leader>d :<C-u>call ref#jump('visual', 'webdict')<CR>
 "au FileType ref-alc set scrolloff=0   " スクロール時の余白確保
 
-
+"}}}
 " ------------------------------------------------------------------------------
-" vim-textmanip
+" vim-textmanip {{{
 " ------------------------------------------------------------------------------
 " 選択したテキストの移動
-"vnoremap <C-j> <Plug>(Textmanip.move_selection_down)
-"vnoremap <C-k> <Plug>(Textmanip.move_selection_up)
-"vnoremap <C-h> <Plug>(Textmanip.move_selection_left)
-"vnoremap <C-l> <Plug>(Textmanip.move_selection_right)
+vnoremap <C-j> <Plug>(Textmanip.move_selection_down)
+vnoremap <C-k> <Plug>(Textmanip.move_selection_up)
+vnoremap <C-h> <Plug>(Textmanip.move_selection_left)
+vnoremap <C-l> <Plug>(Textmanip.move_selection_right)
 
-
+"}}}
 " ------------------------------------------------------------------------------
-"  QFixHowm
+" indent-guides {{{
+" ------------------------------------------------------------------------------
+"let g:indent_guides_enable_on_vim_startup=1
+"let g:indent_guides_guide_size=4
+
+"}}}
+" ------------------------------------------------------------------------------
+" EasyMotion {{{
+" ------------------------------------------------------------------------------
+" ホームポジションに近いキーを使う
+let g:EasyMotion_keys='hjklasdfgyuiopqwertnmzxcvbHJKLASDFGYUIOPQWERTNMZXCVB'
+let g:EasyMotion_leader_key = '<Leader>'
+let g:EasyMotion_grouping=1
+"}}}
+" ------------------------------------------------------------------------------
+"  QFixHowm {{{
 " ------------------------------------------------------------------------------
 ""howmのディレクトリ
 "let howm_dir = $MY_DROPBOX.'/howm'
@@ -946,11 +972,12 @@ vnoremap <silent> <leader>d :<C-u>call ref#jump('visual', 'webdict')<CR>
 "let QFixHowm_SaveTime   = 2
 
 "}}}
+"}}}
 "*******************
 " その他        "{{{
 "*******************
 " ------------------------------------------------------------------------------
-"  拡張子 ->  ファイルタイプ
+"  拡張子 ->  ファイルタイプ {{{
 " ------------------------------------------------------------------------------
 autocmd BufNewFile,BufRead *.coffee set filetype=coffee
 autocmd BufNewFile,BufRead *.jade set filetype=jade
@@ -958,8 +985,9 @@ autocmd BufNewFile,BufRead *.mkd set filetype=markdown
 autocmd BufNewFile,BufRead *.md  set filetype=markdown
 autocmd FileType markdown setlocal tabstop=4 shiftwidth=4 softtabstop=0
 autocmd FileType * setlocal formatoptions-=ro
+"}}}
 " ------------------------------------------------------------------------------
-"  ChangeLog
+"  ChangeLog {{{
 " ------------------------------------------------------------------------------
 if exists("$MY_DROPBOX/Docs/ChangeLog")
   noremap <Leader>o :e $MY_DROPBOX/Docs/ChangeLog<CR>
@@ -968,20 +996,8 @@ autocmd FileType changelog setlocal formatoptions-=tc
 let g:changelog_timeformat = "%Y-%m-%d"
 let g:changelog_username = "jimon"
 
-"" Open Junk File {{{
-"command! -nargs=0 JunkFile call s:open_junk_file()
-"function! s:open_junk_file()
-"    let l:junk_dir = $HOME . '/.vim_junk'. strftime('/%Y/%m')
-"  if !isdirectory(l:junk_dir)
-"    call mkdir(l:junk_dir, 'p')
-"  endif
-"
-"  let l:filename = input('Junk Code: ', l:junk_dir.strftime('/%Y-%m-%d-%H%M%S.'))
-"  if l:filename != ''
-"    execute 'edit ' . l:filename
-"  endif
-"endfunction "}}}
-
+"}}}
+" ------------------------------------------------------------------------------
 " quickfixを自動で開く
 autocmd QuickfixCmdPost make,grep,grepadd,vimgrep if len(getqflist()) != 0 | copen | endif
 
