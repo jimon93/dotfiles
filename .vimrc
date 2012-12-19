@@ -680,7 +680,8 @@ NeoBundle 'https://github.com/digitaltoad/vim-jade.git'
 "NeoBundle 'https://github.com/plasticboy/vim-markdown.git'
 NeoBundle 'https://github.com/tpope/vim-markdown.git'
 NeoBundle 'https://github.com/vim-jp/vimdoc-ja.git'
-NeoBundle 'https://github.com/kana/vim-smartinput.git'
+"NeoBundle 'https://github.com/kana/vim-smartinput.git'
+NeoBundle 'https://github.com/hail2u/vim-css3-syntax.git'
 "}}}
 " scheme ------------------------------------------------------------ "{{{
 NeoBundle 'https://github.com/nanotech/jellybeans.vim.git'
