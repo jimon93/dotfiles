@@ -27,7 +27,7 @@
 "*******************
 " 基礎          "{{{
 "*******************
-
+autocmd!
 
 "----------------------------------------
 " パス設定 UserRuntimePath
@@ -99,7 +99,6 @@ endif
 
 "入力モード時、ステータスラインのカラーを変更
 augroup InsertHook
-autocmd!
 autocmd InsertEnter * highlight StatusLine guifg=#ccdc90 guibg=#2E4340
 autocmd InsertLeave * highlight StatusLine guifg=#2E4340 guibg=#ccdc90
 augroup END
@@ -191,7 +190,6 @@ if has("autocmd")
 endif
 
 "aug Scheme
-"  autocmd!
 "  autocmd FileType scheme setlocal cindent&
 "  autocmd FileType scheme setlocal lispwords=define,call/cc,lambda
 "augroup END
@@ -239,7 +237,6 @@ vnoremap /r "xy:%s/<C-R>=escape(@x, '\\/.*$^~[]')<CR>//gc<Left><Left><Left>
 "-------------------------------------------------------------------------------
 " 移動設定 Move
 "-------------------------------------------------------------------------------
-
 " カーソルを表示行で移動する。論理行移動は<C-n>,<C-p>
 nnoremap h <Left>
 nnoremap j gj
@@ -436,7 +433,6 @@ set expandtab
 "inoremap , ,<Space>
 " XMLの閉タグを自動挿入
 augroup MyXML
-  autocmd!
   autocmd Filetype xml inoremap <buffer> </ </<C-x><C-o>
 augroup END
 
@@ -664,24 +660,25 @@ NeoBundle 'https://github.com/kchmck/vim-coffee-script.git'
 "NeoBundle 'https://github.com/fuenor/qfixhowm.git'
 NeoBundle 'https://github.com/thinca/vim-quickrun.git'
 "NeoBundle 'https://github.com/sjl/gundo.vim.git'
-NeoBundle 'https://github.com/soh335/vim-ref-jquery.git'
+"NeoBundle 'https://github.com/soh335/vim-ref-jquery.git'
 "NeoBundle 'https://github.com/kana/vim-fakeclip.git'
-NeoBundle 'httpd://github.com/t9md/vim-textmanip.git'
+"NeoBundle 'httpd://github.com/t9md/vim-textmanip.git'
 NeoBundle 'https://github.com/Lokaltog/vim-easymotion.git'
 "NeoBundle 'https://github.com/nathanaelkane/vim-indent-guides.git'
-NeoBundle 'https://github.com/thinca/vim-ref.git'
+"NeoBundle 'https://github.com/thinca/vim-ref.git'
 NeoBundle 'https://github.com/Shougo/vimfiler.git'
 "NeoBundle 'git://github.com/Sixeight/unite-grep.git'
-"NeoBundle 'git://github.com/Shougo/vimproc.git'
 NeoBundle 'https://github.com/pangloss/vim-javascript.git'
 "NeoBundle 'https://github.com/ujihisa/unite-colorscheme.git'
 "NeoBundle 'https://github.com/ujihisa/unite-font.git'
+NeoBundle 'https://github.com/Sixeight/unite-grep.git'
 NeoBundle 'https://github.com/digitaltoad/vim-jade.git'
 "NeoBundle 'https://github.com/plasticboy/vim-markdown.git'
 NeoBundle 'https://github.com/tpope/vim-markdown.git'
 NeoBundle 'https://github.com/vim-jp/vimdoc-ja.git'
 "NeoBundle 'https://github.com/kana/vim-smartinput.git'
 NeoBundle 'https://github.com/hail2u/vim-css3-syntax.git'
+NeoBundle 'https://github.com/thinca/vim-qfreplace.git'
 "}}}
 " scheme ------------------------------------------------------------ "{{{
 NeoBundle 'https://github.com/nanotech/jellybeans.vim.git'
@@ -689,6 +686,47 @@ NeoBundle 'https://github.com/chriskempson/tomorrow-theme.git'
 NeoBundle 'molokai'
 "}}}
 filetype plugin indent on
+" ------------------------------------------------------------------------------
+" VimShell                                                                   {{{
+" ------------------------------------------------------------------------------
+let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+"let g:vimshell_right_prompt = 'vcs#info("(%s)-[%b]", "(%s)-[%b|%a]")'
+let g:vimshell_enable_smart_case = 1
+
+if has('win32') || has('win64')
+" Display user name on Windows.
+let g:vimshell_prompt = $USERNAME."% "
+else
+" Display user name on Linux.
+let g:vimshell_prompt = $USER."% "
+
+call vimshell#set_execute_file('bmp,jpg,png,gif', 'gexe eog')
+call vimshell#set_execute_file('mp3,m4a,ogg', 'gexe amarok')
+let g:vimshell_execute_file_list['zip'] = 'zipinfo'
+call vimshell#set_execute_file('tgz,gz', 'gzcat')
+  call vimshell#set_execute_file('tbz,bz2', 'bzcat')
+endif
+
+" Initialize execute file list.
+let g:vimshell_execute_file_list = {}
+call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
+let g:vimshell_execute_file_list['rb'] = 'ruby'
+let g:vimshell_execute_file_list['pl'] = 'perl'
+let g:vimshell_execute_file_list['py'] = 'python'
+call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
+
+autocmd FileType vimshell
+\| call vimshell#hook#add('chpwd', 'my_chpwd', 'g:my_chpwd')
+
+function! g:my_chpwd(args, context)
+call vimshell#execute('ls')
+endfunction
+
+autocmd! FileType vimshell call g:my_vimshell_settings()
+function! g:my_vimshell_settings()
+  imap <buffer> <C-p> <ESC>:call <Plug>(vimshell_int_previous_prompt)<Cr>O
+endfunction
+"}}}
 " ------------------------------------------------------------------------------
 " Align {{{
 " ------------------------------------------------------------------------------
@@ -703,35 +741,29 @@ vnoremap <C-a> :Align<Space>
 " ------------------------------------------------------------------------------
 " unite.vim
 " 入力モードで開始する
-let g:unite_enable_start_insert=1
-
+"let g:unite_enable_start_insert=1
 " 汎用
-nnoremap <Leader>u :Unite -immediately source<CR>
-
+"nnoremap <Leader>u :Unite -immediately source<CR>
 " ヤンク
 let g:unite_source_history_yank_enable=1
-nnoremap <C-y> :Unite history/yank<CR>
-
+nnoremap <C-y> :Unite -start-insert history/yank<CR>
 " バッファ
-nnoremap <C-p> :Unite buffer_tab<CR>
-
+nnoremap <C-p> :Unite -start-insert buffer_tab<CR>
 " タブ
 nnoremap <C-t> :Unite tab<CR>
-
 " スニペット
-nnoremap <C-s> :Unite snippet<CR>
-
+"nnoremap <C-s> :Unite -start-insert snippet<CR>
 " ファイル
-nnoremap <C-n> :Unite bookmark file file/new file_mru<CR>
+nnoremap <C-n> :Unite -start-insert bookmark file file/new file_mru<CR>
 "nmap <C-m> :Unite file_mru<CR>
-
-autocmd FileType unite call s:unite_my_settings()
+autocmd! FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
-  "silent! nunmap <buffer> <ESC><ESC>
-  silent! nmap <buffer> <Esc> <Plug>(unite_exit)
-  silent! nmap <buffer> <Space><Space> <Plug>(unite_toggle_mark_current_candidate)
-  silent! nmap <buffer> s <Plug>(unite_toggle_mark_current_candidate)
-  silent! vmap <buffer> s <Plug>(unite_toggle_mark_selected_candidates)
+  "set timeoutlen=10
+  "autocmd BufEnter <buffer> set timeoutlen=10
+  "autocmd BufLeave <buffer> set timeoutlen=1000
+  "autocmd BufWinEnter <buffer> set timeoutlen=10
+  "autocmd BufWinLeave <buffer> set timeoutlen=1000
+  silent! nmap <buffer> q <Plug>(unite_exit)
 endfunction
 " マーク（スター）する
 " 要改善!
@@ -790,6 +822,9 @@ call unite#define_source( s:unite_source )
 unlet s:unite_source
 nnoremap <Leader>s :Unite -no-start-insert setting<CR>
 
+" Unite Comand
+command! Mapping Unite output:map|map!|lmap
+command! Grep Unite -no-quit -no-start-insert -winheight=10 -direction="downleft" -horizontal  grep
 "}}}
 " ------------------------------------------------------------------------------
 " Neocomplcache {{{
@@ -878,13 +913,17 @@ let g:vimfiler_safe_mode_by_default = 0
 
 " vimfiler をサクサク起動する
 nnoremap <Leader>vf :VimFiler<Cr>
-nnoremap <Leader>f :VimFiler -buffer-name=explorer -split -winwidth=35 -toggle -no-quit<Cr>
-nnoremap <F2> :VimFiler -buffer-name=explorer -split -winwidth=35 -toggle -no-quit<Cr>
+nnoremap <F1> :VimFiler<Cr>
+"nnoremap <Leader>f :VimFiler -buffer-name=explorer -split -winwidth=35 -toggle -no-quit<Cr>
+nnoremap <F2> :VimFilerExplorer<Cr>
 autocmd! FileType vimfiler call g:my_vimfiler_settings()
 function! g:my_vimfiler_settings()
-  nmap     <buffer><expr><Cr> vimfiler#smart_cursor_map("\<Plug>(vimfiler_expand_tree)", "\<Plug>(vimfiler_edit_file)")
-  nnoremap <buffer>s          :call vimfiler#mappings#do_action('my_split')<Cr>
-  nnoremap <buffer>v          :call vimfiler#mappings#do_action('my_vsplit')<Cr>
+  "set timeoutlen=10
+  "autocmd BufEnter <buffer> set timeoutlen=10
+  "autocmd BufLeave <buffer> set timeoutlen=1000
+  "autocmd BufWinEnter <buffer> set timeoutlen=10
+  "autocmd BufWinLeave <buffer> set timeoutlen=1000
+  nmap <buffer><expr><Cr> vimfiler#smart_cursor_map("\<Plug>(vimfiler_expand_tree)", "\<Plug>(vimfiler_edit_file)")
 endfunction
 
 let my_action = { 'is_selectable' : 1 }
@@ -905,37 +944,41 @@ call unite#custom_action('file', 'my_vsplit', my_action)
 " ------------------------------------------------------------------------------
 " quickrun {{{
 " ------------------------------------------------------------------------------
-noremap <Leader>r <Plug>(quickrun)
-
+let g:quickrun_config = {}
+let g:quickrun_config._ = {
+      \ 'runner' : 'vimproc',
+      \ "runner/vimproc/updatetime" : 40
+      \}
+noremap <Leader>r :QuickRun<space>
 "}}}
 " ------------------------------------------------------------------------------
 " vim-ref {{{
 " ------------------------------------------------------------------------------
-let g:ref_source_webdict_sites = {
-      \   'wiktionary': {
-      \     'url': 'http://ja.wiktionary.org/wiki/%s',
-      \     'keyword_encoding': 'utf-8',
-      \     'cache': 1,
-      \   }
-      \ }
-let g:ref_source_webdict_sites.default = 'wiktionary'
-" 出力に対するフィルタ。最初の数行を削除している。
-function! g:ref_source_webdict_sites.wiktionary.filter(output)
-  return join(split(a:output, "\n")[18 :], "\n")
-endfunction
-nnoremap <silent> <leader>d :<C-u>call ref#jump('normal', 'webdict')<CR>
-vnoremap <silent> <leader>d :<C-u>call ref#jump('visual', 'webdict')<CR>
-"au FileType ref-alc set scrolloff=0   " スクロール時の余白確保
-
-"}}}
+"let g:ref_source_webdict_sites = {
+"      \   'wiktionary': {
+"      \     'url': 'http://ja.wiktionary.org/wiki/%s',
+"      \     'keyword_encoding': 'utf-8',
+"      \     'cache': 1,
+"      \   }
+"      \ }
+"let g:ref_source_webdict_sites.default = 'wiktionary'
+"" 出力に対するフィルタ。最初の数行を削除している。
+"function! g:ref_source_webdict_sites.wiktionary.filter(output)
+"  return join(split(a:output, "\n")[18 :], "\n")
+"endfunction
+"nnoremap <silent> <leader>d :<C-u>call ref#jump('normal', 'webdict')<CR>
+"vnoremap <silent> <leader>d :<C-u>call ref#jump('visual', 'webdict')<CR>
+""au FileType ref-alc set scrolloff=0   " スクロール時の余白確保
+"
+""}}}
 " ------------------------------------------------------------------------------
 " vim-textmanip {{{
 " ------------------------------------------------------------------------------
 " 選択したテキストの移動
-vnoremap <C-j> <Plug>(Textmanip.move_selection_down)
-vnoremap <C-k> <Plug>(Textmanip.move_selection_up)
-vnoremap <C-h> <Plug>(Textmanip.move_selection_left)
-vnoremap <C-l> <Plug>(Textmanip.move_selection_right)
+"vnoremap <C-j> <Plug>(Textmanip.move_selection_down)
+"vnoremap <C-k> <Plug>(Textmanip.move_selection_up)
+"vnoremap <C-h> <Plug>(Textmanip.move_selection_left)
+"vnoremap <C-l> <Plug>(Textmanip.move_selection_right)
 
 "}}}
 " ------------------------------------------------------------------------------
@@ -974,6 +1017,11 @@ let g:EasyMotion_grouping=1
 "let QFixHowm_SaveTime   = 2
 
 "}}}
+" ------------------------------------------------------------------------------
+"  Qfreplace {{{
+" ------------------------------------------------------------------------------
+autocmd FileType qf nnoremap <buffer> r :<C-u>Qfreplace<CR>
+"}}}
 "}}}
 "*******************
 " その他        "{{{
@@ -1005,9 +1053,6 @@ autocmd QuickfixCmdPost make,grep,grepadd,vimgrep if len(getqflist()) != 0 | cop
 
 "  テンプレート
 autocmd BufNewFile *.cpp 0r $MY_VIMRUNTIME/template/cpp.cpp
-
-" mapping
-command! Mapping Unite output:map|map!|lmap
 
 "}}}
 "*******************

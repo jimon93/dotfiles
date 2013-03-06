@@ -7,7 +7,7 @@ export PAGER=less
 export EDITOR=vim
 
 ## PATH
-export PATH=${PATH}:${HOME}/bin:/usr/local/bin:/usr/local/sbin:/usr/local/share/hyperestraier/filter
+export PATH=${HOME}/bin:/usr/local/bin:${PATH}:/usr/local/sbin:/usr/local/share/npm/bin
 
 ## Default shell configuration set prompt
 autoload colors
@@ -76,34 +76,24 @@ compinit
 
 ## Alias configuration
 setopt complete_aliases # aliased ls needs if file/dir completions work
-
 alias where="command -v"
 alias j="jobs -l"
-
 case "${OSTYPE}" in
 freebsd*|darwin*)
   alias ls="ls -G -w -F"
-  alias gvim="/Applications/MacPorts/MacVim.app/Contents/MacOS/Vim -g"
-  export PATH=/opt/local/bin:/opt/local/sbin:${PATH}
+  #export PATH=/opt/local/bin:/opt/local/sbin:${PATH}
   ;;
 linux*)
   alias ls="ls -a --color"
   ;;
 esac
-
 alias ll="ls -al"
-
 alias du="du -h"
 alias df="df -h"
-
 alias su="su -l"
 alias screen="export SCREEN=YES ; screen -U -T ${TERM}"
-
 alias emacs '/usr/local/bin/emcws -l ~/.emacs'
-
 alias g++='g++ -O2'
-alias cl='clang-mp-3.2'
-alias cl++='clang++-mp-3.2'
 
 #rlwrap
 #export RLWRAP_EDITOR='vim -c "set filetype=scheme'

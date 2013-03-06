@@ -6,10 +6,12 @@ for dotfile in .?*; do
       continue;;
     .git)
       continue;;
+    src)
+      continue;;
     vim-setup.bat)
       continue;;
     *)
-      ln -Fis "$PWD/$dotfile" $HOME
+      ln -Fisv "$PWD/$dotfile" $HOME
       ;;
   esac
 done
