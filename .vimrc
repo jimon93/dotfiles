@@ -413,7 +413,7 @@ syntax enable
 "-------------------------------------------------------------------------------
 " 編集関連 Edit
 "-------------------------------------------------------------------------------
-inoremap <silent> jj <ESC>
+"inoremap <silent> jj <ESC>
 " insertモードを抜けるとIMEオフ
 set noimdisable
 set iminsert=0 imsearch=0
@@ -635,94 +635,100 @@ autocmd BufEnter *.txt setlocal foldmethod=expr foldexpr=OutLineFoldSetting(v:ln
 " NeoBundle の設定 {{{
 filetype plugin indent off
 if has('vim_starting')
-  execute ":set runtimepath+=".$MY_VIMRUNTIME."/bundle/neobundle.vim/"
-  "call neobundle#rc(expand($MY_VIMRUNTIME.'/bundle'))
-  call neobundle#rc(expand('~/.bundle'))
+  set runtimepath+=$MY_VIMRUNTIME/bundle/neobundle.vim/
 endif
+call neobundle#rc(expand('~/.bundle'))
 
-"NeoBundle 'git://github.com/thinca/vim-singleton.git'
 "if 703 <= v:version
+"  NeoBundle 'git://github.com/thinca/vim-singleton.git'
 "  call singleton#enable() " 多重起動禁止
 "endif
 
 "}}}
 " plugin ------------------------------------------------------------ {{{
-NeoBundle 'https://github.com/Shougo/vimproc.git'
-NeoBundle 'https://github.com/Shougo/vimshell.git'
-"NeoBundle 'https://github.com/Shougo/neobundle.vim.git'
-NeoBundle 'https://github.com/Shougo/neocomplcache.git'
-"NeoBundle 'https://github.com/Shougo/neocomplcache-snippets-complete.git'
-NeoBundle 'https://github.com/Shougo/neosnippet.git'
+NeoBundle 'Shougo/vimproc',{
+      \   'build': {
+      \     'windows' : 'make -f make_mingw32.mak',
+      \     'cygwin'  : 'make -f make_cygwin.mak',
+      \     'mac'     : 'make -f make_mac.mak',
+      \     'unix'    : 'make -f make_unix.mak',
+      \   },
+      \ }
+NeoBundleLazy 'Shougo/vimshell', { 'autoload': { 'commands' : "VimShell" } }
+NeoBundle 'Shougo/neocomplcache'
+NeoBundle 'Shougo/neosnippet'
 NeoBundle 'https://github.com/Shougo/unite.vim.git'
-NeoBundle 'https://github.com/tsaleh/vim-align.git'
-NeoBundle 'https://github.com/tpope/vim-surround.git'
-NeoBundle 'https://github.com/kchmck/vim-coffee-script.git'
-"NeoBundle 'https://github.com/fuenor/qfixhowm.git'
-NeoBundle 'https://github.com/thinca/vim-quickrun.git'
-"NeoBundle 'https://github.com/sjl/gundo.vim.git'
-"NeoBundle 'https://github.com/soh335/vim-ref-jquery.git'
-"NeoBundle 'https://github.com/kana/vim-fakeclip.git'
-"NeoBundle 'httpd://github.com/t9md/vim-textmanip.git'
-NeoBundle 'https://github.com/Lokaltog/vim-easymotion.git'
-"NeoBundle 'https://github.com/nathanaelkane/vim-indent-guides.git'
-"NeoBundle 'https://github.com/thinca/vim-ref.git'
-NeoBundle 'https://github.com/Shougo/vimfiler.git'
-NeoBundle 'https://github.com/pangloss/vim-javascript.git'
-NeoBundle 'https://github.com/Sixeight/unite-grep.git'
-NeoBundle 'https://github.com/Shougo/unite-ssh.git'
-NeoBundle 'https://github.com/digitaltoad/vim-jade.git'
-"NeoBundle 'https://github.com/plasticboy/vim-markdown.git'
-NeoBundle 'https://github.com/tpope/vim-markdown.git'
-NeoBundle 'https://github.com/vim-jp/vimdoc-ja.git'
-"NeoBundle 'https://github.com/kana/vim-smartinput.git'
-NeoBundle 'https://github.com/hail2u/vim-css3-syntax.git'
-NeoBundle 'https://github.com/thinca/vim-qfreplace.git'
+NeoBundle 'https://github.com/scrooloose/syntastic.git'
+NeoBundle 'https://github.com/nathanaelkane/vim-indent-guides.git'
+NeoBundle 'tsaleh/vim-align'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'thinca/vim-quickrun'
+NeoBundle 'Lokaltog/vim-easymotion'
+NeoBundleLazy 'Shougo/vimfiler', { 'autoload':
+      \   { 'commands': ['VimFiler', 'VimFilerExplorer'] }
+      \ }
+NeoBundle 'jelera/vim-javascript-syntax'
+NeoBundle 'jiangmiao/simple-javascript-indenter'
+NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'teramako/jscomplete-vim'
+NeoBundle 'kchmck/vim-coffee-script'
+"NeoBundle 'Sixeight/unite-grep'
+NeoBundle 'digitaltoad/vim-jade'
+NeoBundle 'tpope/vim-markdown'
+NeoBundle 'vim-jp/vimdoc-ja'
+NeoBundle 'hail2u/vim-css3-syntax'
+"NeoBundle 'Shougo/unite-ssh'
+"NeoBundle 'kana/vim-smartinput'
+"NeoBundle 'thinca/vim-qfreplace'
 "}}}
 " scheme ------------------------------------------------------------ "{{{
-NeoBundle 'https://github.com/nanotech/jellybeans.vim.git'
-NeoBundle 'https://github.com/chriskempson/tomorrow-theme.git'
-NeoBundle 'molokai'
+NeoBundle 'https://github.com/tomasr/molokai.git'
+NeoBundle 'https://github.com/altercation/solarized.git'
 "}}}
 filetype plugin indent on
+NeoBundleCheck
 " ------------------------------------------------------------------------------
 " VimShell                                                                   {{{
 " ------------------------------------------------------------------------------
-let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-"let g:vimshell_right_prompt = 'vcs#info("(%s)-[%b]", "(%s)-[%b|%a]")'
-let g:vimshell_enable_smart_case = 1
+let s:bundle = neobundle#get('vimshell')
+function! s:bundle.hooks.on_source(bundle)
+  let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+  "let g:vimshell_right_prompt = 'vcs#info("(%s)-[%b]", "(%s)-[%b|%a]")'
+  let g:vimshell_enable_smart_case = 1
 
-if has('win32') || has('win64')
-" Display user name on Windows.
-let g:vimshell_prompt = $USERNAME."% "
-else
-" Display user name on Linux.
-let g:vimshell_prompt = $USER."% "
+  if has('win32') || has('win64')
+    " Display user name on Windows.
+    let g:vimshell_prompt = $USERNAME."% "
+  else
+    " Display user name on Linux.
+    let g:vimshell_prompt = $USER."% "
 
-call vimshell#set_execute_file('bmp,jpg,png,gif', 'gexe eog')
-call vimshell#set_execute_file('mp3,m4a,ogg', 'gexe amarok')
-let g:vimshell_execute_file_list['zip'] = 'zipinfo'
-call vimshell#set_execute_file('tgz,gz', 'gzcat')
-  call vimshell#set_execute_file('tbz,bz2', 'bzcat')
-endif
+    call vimshell#set_execute_file('bmp,jpg,png,gif', 'gexe eog')
+    call vimshell#set_execute_file('mp3,m4a,ogg', 'gexe amarok')
+    let g:vimshell_execute_file_list['zip'] = 'zipinfo'
+    call vimshell#set_execute_file('tgz,gz', 'gzcat')
+    call vimshell#set_execute_file('tbz,bz2', 'bzcat')
+  endif
 
-" Initialize execute file list.
-let g:vimshell_execute_file_list = {}
-call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
-let g:vimshell_execute_file_list['rb'] = 'ruby'
-let g:vimshell_execute_file_list['pl'] = 'perl'
-let g:vimshell_execute_file_list['py'] = 'python'
-call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
+  " Initialize execute file list.
+  let g:vimshell_execute_file_list = {}
+  call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
+  let g:vimshell_execute_file_list['rb'] = 'ruby'
+  let g:vimshell_execute_file_list['pl'] = 'perl'
+  let g:vimshell_execute_file_list['py'] = 'python'
+  call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
 
-autocmd FileType vimshell
-\| call vimshell#hook#add('chpwd', 'my_chpwd', 'g:my_chpwd')
+  autocmd FileType vimshell
+  \| call vimshell#hook#add('chpwd', 'my_chpwd', 'g:my_chpwd')
 
-function! g:my_chpwd(args, context)
-call vimshell#execute('ls')
-endfunction
+  function! g:my_chpwd(args, context)
+    call vimshell#execute('ls')
+  endfunction
 
-autocmd! FileType vimshell call g:my_vimshell_settings()
-function! g:my_vimshell_settings()
-  imap <buffer> <C-p> <ESC>:call <Plug>(vimshell_int_previous_prompt)<Cr>O
+  autocmd! FileType vimshell call g:my_vimshell_settings()
+  function! g:my_vimshell_settings()
+    imap <buffer> <C-p> <ESC>:call <Plug>(vimshell_int_previous_prompt)<Cr>O
+  endfunction
 endfunction
 "}}}
 " ------------------------------------------------------------------------------
@@ -752,8 +758,8 @@ nnoremap <C-t> :Unite tab<CR>
 " スニペット
 "nnoremap <C-s> :Unite -start-insert snippet<CR>
 " ファイル
-nnoremap <C-n> :Unite -start-insert bookmark file file/new file_mru<CR>
-"nmap <C-m> :Unite file_mru<CR>
+nnoremap <C-n> :Unite -start-insert bookmark file file/new file_rec/async file_mru<CR>
+nmap <C-m> :Unite file_mru<CR>
 autocmd! FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
   "set timeoutlen=10
@@ -761,16 +767,17 @@ function! s:unite_my_settings()
   "autocmd BufLeave <buffer> set timeoutlen=1000
   "autocmd BufWinEnter <buffer> set timeoutlen=10
   "autocmd BufWinLeave <buffer> set timeoutlen=1000
-  silent! nmap <buffer> q <Plug>(unite_exit)
+  " insertから抜ける
+  silent! imap <buffer> jj <Plug>(unite_insert_leave)
+  " 終了する
+  silent! imap <buffer> qq <Plug>(unite_exit)
+  silent! imap <buffer> QQ <Plug>(unite_exit)
+  " マーク（スター）する
+  silent! nmap <buffer> s <Plug>(unite_toggle_mark_current_candidate)
+  silent! vmap <buffer> s v_<Plug>(unite_toggle_mark_selected_candidates)|
+  "inoremap <buffer><expr> <C-x> <Plug>(unite_exit)
+  "noremap <buffer><expr> <C-x> <Plug>(unite_exit)
 endfunction
-" マーク（スター）する
-" 要改善!
-"au FileType unite nnoremap <buffer> o <Plug>(unite_toggle_mark_current_candidate)
-"au FileType unite nnoremap <buffer> <Space><Space> <Plug>(unite_toggle_mark_current_candidate)
-
-" ESCキーを2回押すと終了する
-"au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
-"au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
 "------------------------------------------------------------
 " 設定ファイル SettingFile
 "------------------------------------------------------------
@@ -827,18 +834,28 @@ command! Grep Unite -no-quit -no-start-insert -winheight=10 -direction="downleft
 " ------------------------------------------------------------------------------
 " Neocomplcache {{{
 " ------------------------------------------------------------------------------
-" NeoComplCacheを有効にする
+" Disable AutoComplPop.
 let g:acp_enableAtStartup = 0
+" Use neocomplcache.
 let g:neocomplcache_enable_at_startup = 1
-" smarrt case有効化。 大文字が入力されるまで大文字小文字の区別を無視する
+" Use smartcase.
 let g:neocomplcache_enable_smart_case = 1
-" camle caseを有効化。大文字を区切りとしたワイルドカードのように振る舞う
-let g:neocomplcache_enable_camel_case_completion = 1
-" Use underbar completion.
-let g:neocomplcache_enable_underbar_completion = 1
 " Set minimum syntax keyword length.
-let g:neocomplcache_min_syntax_length = 2
+let g:neocomplcache_min_syntax_length = 3
 let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+
+" Enable heavy features.
+" Use camel case completion.
+"let g:neocomplcache_enable_camel_case_completion = 1
+" Use underbar completion.
+"let g:neocomplcache_enable_underbar_completion = 1
+
+" Define dictionary.
+let g:neocomplcache_dictionary_filetype_lists = {
+  \ 'default' : '',
+  \ 'vimshell' : $HOME.'/.vimshell_hist',
+  \ 'scheme' : $HOME.'/.gosh_completions'
+      \ }
 
 " Define keyword.
 if !exists('g:neocomplcache_keyword_patterns')
@@ -847,31 +864,36 @@ endif
 let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
 
 " Plugin key-mappings.
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-inoremap <expr><C-g> neocomplcache#undo_completion()
-inoremap <expr><C-l> neocomplcache#complete_common_string()
-
-" SuperTab like snippets behavior.
-imap <expr><TAB> neosnippet#expandable() ? "\<Plug>(neosnippet_expand_or_jump)" : pumvisible() ? "\<C-n>" : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
-
-" For snippet_complete marker.
-if has('conceal')
-  set conceallevel=2 concealcursor=i
-endif
+inoremap <expr><C-g>     neocomplcache#undo_completion()
+inoremap <expr><C-l>     neocomplcache#complete_common_string()
 
 " Recommended key-mappings.
 " <CR>: close popup and save indent.
-inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
-"inoremap <expr><CR>  neocomplcache#smart_close_popup()
+inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+function! s:my_cr_function()
+return neocomplcache#smart_close_popup() . "\<CR>"
+" For no inserting <CR> key.
+"return pumvisible() ? neocomplcache#close_popup() : "\<CR>"
+endfunction
 " <TAB>: completion.
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 " <C-h>, <BS>: close popup and delete backword char.
 inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
 inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
-"inoremap <expr><C-y> neocomplcache#close_popup()
-"inoremap <expr><C-e> neocomplcache#cancel_popup()
+inoremap <expr><C-y>  neocomplcache#close_popup()
+"inoremap <expr><C-e>  neocomplcache#cancel_popup()
+" Close popup by <Space>.
+"inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() : "\<Space>"
+
+" For cursor moving in insert mode(Not recommended)
+"inoremap <expr><Left>  neocomplcache#close_popup() . "\<Left>"
+"inoremap <expr><Right> neocomplcache#close_popup() . "\<Right>"
+"inoremap <expr><Up>    neocomplcache#close_popup() . "\<Up>"
+"inoremap <expr><Down>  neocomplcache#close_popup() . "\<Down>"
+" Or set this.
+"let g:neocomplcache_enable_cursor_hold_i = 1
+" Or set this.
+"let g:neocomplcache_enable_insert_char_pre = 1
 
 " AutoComplPop like behavior.
 "let g:neocomplcache_enable_auto_select = 1
@@ -880,8 +902,7 @@ inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
 "set completeopt+=longest
 "let g:neocomplcache_enable_auto_select = 1
 "let g:neocomplcache_disable_auto_complete = 1
-"inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<TAB>"
-"inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
+"inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
 
 " Enable omni completion.
 autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
@@ -892,52 +913,59 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 
 " Enable heavy omni completion.
 if !exists('g:neocomplcache_omni_patterns')
-  let g:neocomplcache_omni_patterns = {}
+let g:neocomplcache_omni_patterns = {}
 endif
-let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
-"autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+"let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
+autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
 let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
-let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
+let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+
+" For perlomni.vim setting.
+" https://github.com/c9s/perlomni.vim
+let g:neocomplcache_omni_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
+
 
 "}}}
 " ------------------------------------------------------------------------------
 " vimfiler {{{
 " ------------------------------------------------------------------------------
-" netrw っぽく
-let g:vimfiler_as_default_explorer = 1
-" セーフモード OFF (削除やリネームをサクサクしたい)
-let g:vimfiler_safe_mode_by_default = 0
-
 " vimfiler をサクサク起動する
 nnoremap <Leader>vf :VimFiler<Cr>
 nnoremap <F1> :VimFiler<Cr>
 "nnoremap <Leader>f :VimFiler -buffer-name=explorer -split -winwidth=35 -toggle -no-quit<Cr>
 nnoremap <F2> :VimFilerExplorer<Cr>
-autocmd! FileType vimfiler call g:my_vimfiler_settings()
-function! g:my_vimfiler_settings()
-  "set timeoutlen=10
-  "autocmd BufEnter <buffer> set timeoutlen=10
-  "autocmd BufLeave <buffer> set timeoutlen=1000
-  "autocmd BufWinEnter <buffer> set timeoutlen=10
-  "autocmd BufWinLeave <buffer> set timeoutlen=1000
-  nmap <buffer><expr><Cr> vimfiler#smart_cursor_map("\<Plug>(vimfiler_expand_tree)", "\<Plug>(vimfiler_edit_file)")
-endfunction
+let s:bundle = neobundle#get('vimfiler')
+function! s:bundle.hooks.on_source(bundle)
+  " netrw っぽく
+  let g:vimfiler_as_default_explorer = 1
+  " セーフモード OFF (削除やリネームをサクサクしたい)
+  let g:vimfiler_safe_mode_by_default = 0
 
-let my_action = { 'is_selectable' : 1 }
-function! my_action.func(candidates)
-  wincmd p
-  exec 'split '. a:candidates[0].action__path
-endfunction
-call unite#custom_action('file', 'my_split', my_action)
+  autocmd! FileType vimfiler call g:my_vimfiler_settings()
+  function! g:my_vimfiler_settings()
+    "set timeoutlen=10
+    "autocmd BufEnter <buffer> set timeoutlen=10
+    "autocmd BufLeave <buffer> set timeoutlen=1000
+    "autocmd BufWinEnter <buffer> set timeoutlen=10
+    "autocmd BufWinLeave <buffer> set timeoutlen=1000
+    nmap <buffer><expr><Cr> vimfiler#smart_cursor_map("\<Plug>(vimfiler_expand_tree)", "\<Plug>(vimfiler_edit_file)")
+  endfunction
 
-let my_action = { 'is_selectable' : 1 }
-function! my_action.func(candidates)
-  wincmd p
-  exec 'vsplit '. a:candidates[0].action__path
-endfunction
-call unite#custom_action('file', 'my_vsplit', my_action)
+  let my_action = { 'is_selectable' : 1 }
+  function! my_action.func(candidates)
+    wincmd p
+    exec 'split '. a:candidates[0].action__path
+  endfunction
+  call unite#custom_action('file', 'my_split', my_action)
 
+  let my_action = { 'is_selectable' : 1 }
+  function! my_action.func(candidates)
+    wincmd p
+    exec 'vsplit '. a:candidates[0].action__path
+  endfunction
+  call unite#custom_action('file', 'my_vsplit', my_action)
+endfunction
 "}}}
 " ------------------------------------------------------------------------------
 " quickrun {{{
@@ -982,9 +1010,15 @@ noremap <Leader>r :QuickRun<space>
 " ------------------------------------------------------------------------------
 " indent-guides {{{
 " ------------------------------------------------------------------------------
+colorscheme default
 "let g:indent_guides_enable_on_vim_startup=1
-"let g:indent_guides_guide_size=4
+"let g:indent_guides_auto_colors=0
+let g:indent_guides_start_level=1
 
+hi IndentGuidesOdd  ctermbg=darkblue
+hi IndentGuidesEven ctermbg=darkred
+
+let g:indent_guides_color_change_percent=20
 "}}}
 " ------------------------------------------------------------------------------
 " EasyMotion {{{
@@ -1018,8 +1052,14 @@ let g:EasyMotion_grouping=1
 " ------------------------------------------------------------------------------
 "  Qfreplace {{{
 " ------------------------------------------------------------------------------
-autocmd FileType qf nnoremap <buffer> r :<C-u>Qfreplace<CR>
+"autocmd FileType qf nnoremap <buffer> r :<C-u>Qfreplace<CR>
 "}}}
+" ------------------------------------------------------------------------------
+"  jscomplete-vim {{{
+" ------------------------------------------------------------------------------
+let g:jscomplete_use = ['dom', 'moz', 'es6th']
+"}}}
+
 "}}}
 "*******************
 " その他        "{{{
@@ -1051,6 +1091,12 @@ autocmd QuickfixCmdPost make,grep,grepadd,vimgrep if len(getqflist()) != 0 | cop
 
 "  テンプレート
 autocmd BufNewFile *.cpp 0r $MY_VIMRUNTIME/template/cpp.cpp
+autocmd BufNewFile *.rb 0r $MY_VIMRUNTIME/template/ruby.rb
 
+augroup BgHighlight
+    autocmd!
+    autocmd WinEnter * set number
+    autocmd WinLeave * set nonumber
+augroup END
 "}}}
 "*******************

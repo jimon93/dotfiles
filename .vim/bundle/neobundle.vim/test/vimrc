@@ -88,7 +88,6 @@ NeoBundle 'Shougo/vimproc', {
       \ }
 
 " Lazy load.
-NeoExternalBundle 'CSApprox'
 NeoBundleLazy 'c9s/perlomni.vim.git'
 NeoBundleSource perlomni.vim
 call neobundle#source(['CSApprox'])
@@ -100,6 +99,17 @@ NeoBundleLazy 'masudaK/vim-python'
 NeoBundleLazy 'klen/python-mode'
 autocmd FileType python* NeoBundleSource python-mode
 
+NeoBundleLazy 'Rip-Rip/clang_complete', {
+      \ 'autoload' : {
+      \     'filetypes' : ['c', 'cpp'],
+      \    },
+      \ }
+
+" script_type support.
+NeoBundle 'bronzehedwick/impactjs-colorscheme', {'script_type' : 'colors'}
+NeoBundle 'https://raw.github.com/m2ym/rsense/master/etc/rsense.vim',
+       \ {'script_type' : 'plugin'}
+
 filetype plugin indent on       " required!
 
 " Should not break helptags.
@@ -110,4 +120,7 @@ set wildignore+=.git
 set wildignore+=.git/*
 set wildignore+=*/.git/*
 
-autocmd VimEnter * NeoBundleInstall
+" Fetch only.
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+autocmd VimEnter * NeoBundleCheck

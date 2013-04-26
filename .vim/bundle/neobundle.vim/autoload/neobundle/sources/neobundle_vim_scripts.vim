@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: neobundle_vim_scripts.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 13 Oct 2012.
+" Last Modified: 27 Dec 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -29,7 +29,7 @@ set cpo&vim
 
 let s:repository_cache = []
 
-function! neobundle#sources#neobundle_vim_scripts#define()"{{{
+function! neobundle#sources#neobundle_vim_scripts#define() "{{{
   return s:source
 endfunction"}}}
 
@@ -38,7 +38,7 @@ let s:source = {
       \ 'short_name' : 'neobundle',
       \ }
 
-function! s:source.gather_candidates(args, context)"{{{
+function! s:source.gather_candidates(args, context) "{{{
   let plugins = s:get_repository_plugins(a:context)
 
   return map(copy(plugins), "{
@@ -54,13 +54,15 @@ function! s:source.gather_candidates(args, context)"{{{
 endfunction"}}}
 
 " Misc.
-function! s:get_repository_plugins(context)"{{{
+function! s:get_repository_plugins(context) "{{{
   if a:context.is_redraw || empty(s:repository_cache)
     " Reload cache.
     let s:repository_cache = []
 
-    for path in split(globpath(&runtimepath, 'recipes/*.json', 1), '\n')
-      sandbox let data = eval(join(readfile(path)))
+    for path in split(globpath(&runtimepath,
+          \ 'recipes/**/*.vimrecipe', 1), '\n')
+      sandbox let data = eval(join(filter(readfile(path),
+            \ "v:val !~ '^\\s*\\%(#.*\\)\\?$'"), ''))
 
       if !has_key(data, 'name') || !has_key(data, 'path')
         call unite#print_error(

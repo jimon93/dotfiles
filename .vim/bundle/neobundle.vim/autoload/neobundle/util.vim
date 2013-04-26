@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: util.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu at gmail.com>
-" Last Modified: 09 Oct 2012.
+" Last Modified: 30 Mar 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -31,48 +31,56 @@ let s:is_windows = has('win16') || has('win32') || has('win64')
 let s:is_cygwin = has('win32unix')
 let s:is_mac = !s:is_windows
       \ && (has('mac') || has('macunix') || has('gui_macvim') ||
-      \   (!executable('xdg-open') && system('uname') =~? '^darwin'))
+      \   (!isdirectory('/proc') && executable('sw_vers')))
 
-function! neobundle#util#substitute_path_separator(path)"{{{
-  return (s:is_windows) ? substitute(a:path, '\\', '/', 'g') : a:path
+function! neobundle#util#substitute_path_separator(path) "{{{
+  return (s:is_windows && a:path =~ '\\') ?
+        \ substitute(a:path, '\\', '/', 'g') : a:path
 endfunction"}}}
-function! neobundle#util#expand(path)"{{{
-  return neobundle#util#substitute_path_separator(
-        \ expand(escape(a:path, '*?[]"={}'), 1))
+function! neobundle#util#expand(path) "{{{
+  let path = expand(escape(a:path, '*?{}'), 1)
+  return (s:is_windows && path =~ '\\') ?
+        \ neobundle#util#substitute_path_separator(path) : path
+endfunction"}}}
+function! neobundle#util#expand2(path) "{{{
+  return expand(escape(a:path, '*?{}'), 1)
 endfunction"}}}
 
-function! neobundle#util#is_windows()"{{{
+function! neobundle#util#is_windows() "{{{
   return s:is_windows
 endfunction"}}}
-function! neobundle#util#is_mac()"{{{
+function! neobundle#util#is_mac() "{{{
   return s:is_mac
 endfunction"}}}
-function! neobundle#util#is_cygwin()"{{{
+function! neobundle#util#is_cygwin() "{{{
   return s:is_cygwin
 endfunction"}}}
 
-" Check vimproc."{{{
-function! neobundle#util#has_vimproc()"{{{
+" Check vimproc. "{{{
+function! neobundle#util#has_vimproc() "{{{
   if !exists('s:exists_vimproc')
     try
       call vimproc#version()
-      let s:exists_vimproc = 1
     catch
-      let s:exists_vimproc = 0
     endtry
+
+    let s:exists_vimproc =
+          \ (exists('g:vimproc_dll_path') && filereadable(g:vimproc_dll_path))
+          \ || (exists('g:vimproc#dll_path') && filereadable(g:vimproc#dll_path))
   endif
+
   return s:exists_vimproc
 endfunction"}}}
 "}}}
 " iconv() wrapper for safety.
-function! s:iconv(expr, from, to)"{{{
+function! s:iconv(expr, from, to) "{{{
   if a:from == '' || a:to == '' || a:from ==? a:to
     return a:expr
   endif
   let result = iconv(a:expr, a:from, a:to)
   return result != '' ? result : a:expr
 endfunction"}}}
-function! neobundle#util#system(str, ...)"{{{
+function! neobundle#util#system(str, ...) "{{{
   let command = a:str
   let input = a:0 >= 1 ? a:1 : ''
   let command = s:iconv(command, &encoding, 'char')
@@ -92,29 +100,35 @@ function! neobundle#util#system(str, ...)"{{{
 
   let output = s:iconv(output, 'char', &encoding)
 
-  return output
+  return substitute(output, '\n$', '', '')
 endfunction"}}}
-function! neobundle#util#get_last_status()"{{{
+function! neobundle#util#get_last_status() "{{{
   return neobundle#util#has_vimproc() ?
         \ vimproc#get_last_status() : v:shell_error
 endfunction"}}}
 
 " Split a comma separated string to a list.
-function! neobundle#util#split_rtp(...)"{{{
+function! neobundle#util#split_rtp(...) "{{{
   let rtp = a:0 ? a:1 : &runtimepath
   if type(rtp) == type([])
     return rtp
   endif
+
+  if rtp !~ '\\'
+    return split(rtp, ',')
+  endif
+
   let split = split(rtp, '\\\@<!\%(\\\\\)*\zs,')
   return map(split,'substitute(v:val, ''\\\([\\,]\)'', "\\1", "g")')
 endfunction"}}}
 
-function! neobundle#util#join_rtp(list)"{{{
-  return join(map(copy(a:list), 's:escape(v:val)'), ',')
+function! neobundle#util#join_rtp(list, runtimepath, rtp) "{{{
+  return (a:runtimepath !~ '\\' && a:rtp !~ ',') ?
+        \ join(a:list, ',') : join(map(copy(a:list), 's:escape(v:val)'), ',')
 endfunction"}}}
 
 " Removes duplicates from a list.
-function! neobundle#util#uniq(list, ...)"{{{
+function! neobundle#util#uniq(list, ...) "{{{
   let list = a:0 ? map(copy(a:list), printf('[v:val, %s]', a:1)) : copy(a:list)
   let i = 0
   let seen = {}
@@ -138,7 +152,7 @@ function! neobundle#util#set_default(var, val, ...)  "{{{
           \ {alternate_var} : a:val
   endif
 endfunction"}}}
-function! neobundle#util#set_dictionary_helper(variable, keys, pattern)"{{{
+function! neobundle#util#set_dictionary_helper(variable, keys, pattern) "{{{
   for key in split(a:keys, '\s*,\s*')
     if !has_key(a:variable, key)
       let a:variable[key] = a:pattern
@@ -146,10 +160,42 @@ function! neobundle#util#set_dictionary_helper(variable, keys, pattern)"{{{
   endfor
 endfunction"}}}
 
+function! neobundle#util#get_filetypes() "{{{
+  let filetype = exists('*neocomplcache#get_context_filetype') ?
+        \ neocomplcache#get_context_filetype(1) : &filetype
+  return split(filetype, '\.')
+endfunction"}}}
+
+function! neobundle#util#convert_list(expr) "{{{
+  return type(a:expr) ==# type([]) ? a:expr : [a:expr]
+endfunction"}}}
+
+function! neobundle#util#print_error(expr) "{{{
+  let msg = neobundle#util#convert_list(a:expr)
+  echohl WarningMsg | echomsg join(msg, "\n") | echohl None
+endfunction"}}}
+
+function! neobundle#util#redraw_echo(expr) "{{{
+  if has('vim_starting')
+    echo join(neobundle#util#convert_list(a:expr), "\n")
+    return
+  endif
+
+  let msg = neobundle#util#convert_list(a:expr)
+  let max = len(msg)
+  let i = 0
+  while i < max
+    redraw
+    echo join(msg[i : i+&cmdheight-1], "\n")
+
+    let i += &cmdheight
+  endwhile
+endfunction"}}}
+
 " Escape a path for runtimepath.
-function! s:escape(path)
+function! s:escape(path)"{{{
   return substitute(a:path, ',\|\\,\@=', '\\\0', 'g')
-endfunction
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

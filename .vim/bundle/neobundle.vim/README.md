@@ -17,7 +17,6 @@ NeoBundle is Vim plugin manager based on Vundle(https://github.com/gmarik/vundle
 
      ```vim
      set nocompatible               " Be iMproved
-     filetype off                   " Required!
 
      if has('vim_starting')
        set runtimepath+=~/.vim/bundle/neobundle.vim/
@@ -26,7 +25,7 @@ NeoBundle is Vim plugin manager based on Vundle(https://github.com/gmarik/vundle
      call neobundle#rc(expand('~/.vim/bundle/'))
 
      " Let NeoBundle manage NeoBundle
-     "NeoBundle 'Shougo/neobundle.vim'
+     NeoBundleFetch 'Shougo/neobundle.vim'
 
      " Recommended to install
      " After install, turn shell ~/.vim/bundle/vimproc, (n,g)make -f your_machines_makefile
@@ -59,16 +58,12 @@ NeoBundle is Vim plugin manager based on Vundle(https://github.com/gmarik/vundle
      " :NeoBundleClean(!)      - confirm(or auto-approve) removal of unused bundles
 
      " Installation check.
-     if neobundle#exists_not_installed_bundles()
-       echomsg 'Not installed bundles : ' .
-             \ string(neobundle#get_not_installed_bundle_names())
-       echomsg 'Please execute ":NeoBundleInstall" command.'
-       "finish
-     endif
+     NeoBundleCheck
      ```
 3. Install configured bundles:
 
      Launch `vim`, run `:NeoBundleInstall`, or `:Unite neobundle/install`(required unite.vim)
+
 ## Docs
 
 see `:h neobundle`

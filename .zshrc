@@ -9,6 +9,12 @@ export EDITOR=vim
 ## PATH
 export PATH=${HOME}/bin:/usr/local/bin:${PATH}:/usr/local/sbin:/usr/local/share/npm/bin
 
+# Export path for nodebrew
+if [[ -f ~/.nodebrew/nodebrew ]]; then
+  export PATH=$HOME/.nodebrew/current/bin:$PATH
+  nodebrew use latest > /dev/null
+fi
+
 ## Default shell configuration set prompt
 autoload colors
 colors

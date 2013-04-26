@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: hg.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Oct 2012.
+" Last Modified: 31 Jan 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,13 +27,13 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-" Global options definition."{{{
+" Global options definition. "{{{
 call neobundle#util#set_default(
       \ 'g:neobundle#types#hg#default_protocol', 'https',
       \ 'g:neobundle_default_hg_protocol')
 "}}}
 
-function! neobundle#types#hg#define()"{{{
+function! neobundle#types#hg#define() "{{{
   return s:type
 endfunction"}}}
 
@@ -41,34 +41,38 @@ let s:type = {
       \ 'name' : 'hg',
       \ }
 
-function! s:type.detect(path, opts)"{{{
+function! s:type.detect(path, opts) "{{{
   let type = ''
-  let protocol = get(a:opts, 'type__protocol',
-        \ g:neobundle#types#hg#default_protocol)
 
-  if a:path =~# '\<\(bb\|bitbucket\):\S\+'
+  let protocol = matchstr(a:path, '^[^:]\+\ze://')
+  if protocol == '' || a:path =~#
+        \'\<\%(bb\|bitbucket\):\S\+'
+        \ || has_key(a:opts, 'type__protocol')
+    let protocol = get(a:opts, 'type__protocol',
+          \ g:neobundle#types#hg#default_protocol)
+  endif
+
+  if a:path =~# '\<\%(bb\|bitbucket\):'
     let name = substitute(split(a:path, ':')[-1],
           \   '^//bitbucket.org/', '', '')
     let uri = (protocol ==# 'ssh') ?
           \ 'ssh://hg@bitbucket.org/' . name :
           \ protocol . '://bitbucket.org/' . name
     let name = split(uri, '/')[-1]
-
-    let type = 'hg'
   elseif a:path =~? '[/.]hg[/.@]'
           \ || (a:path =~# '\<https\?://bitbucket\.org/'
           \ || a:path =~# '\<https://code\.google\.com/'
+          \ || get(a:opts, 'type', '') ==# 'hg'
           \    && a:path !~# '.git$')
     let uri = a:path
     let name = split(a:path, '/')[-1]
-
-    let type = 'hg'
+  else
+    return {}
   endif
 
-  return type == '' ?  {} :
-        \ { 'name': name, 'uri': uri, 'type' : type }
+  return { 'name': name, 'uri': uri, 'type' : 'hg' }
 endfunction"}}}
-function! s:type.get_sync_command(bundle)"{{{
+function! s:type.get_sync_command(bundle) "{{{
   if !executable('hg')
     return 'E: "hg" command is not installed.'
   endif
@@ -82,14 +86,14 @@ function! s:type.get_sync_command(bundle)"{{{
 
   return cmd
 endfunction"}}}
-function! s:type.get_revision_number_command(bundle)"{{{
+function! s:type.get_revision_number_command(bundle) "{{{
   if !executable('hg')
     return ''
   endif
 
   return 'hg heads --quiet --rev default'
 endfunction"}}}
-function! s:type.get_revision_lock_command(bundle)"{{{
+function! s:type.get_revision_lock_command(bundle) "{{{
   if !executable('hg') || a:bundle.rev == ''
     return ''
   endif

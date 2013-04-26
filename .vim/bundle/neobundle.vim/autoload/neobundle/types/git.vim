@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: git.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Oct 2012.
+" Last Modified: 10 Feb 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -27,13 +27,13 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-" Global options definition."{{{
+" Global options definition. "{{{
 call neobundle#util#set_default(
       \ 'g:neobundle#types#git#default_protocol', 'git',
       \ 'g:neobundle_default_git_protocol')
 "}}}
 
-function! neobundle#types#git#define()"{{{
+function! neobundle#types#git#define() "{{{
   return s:type
 endfunction"}}}
 
@@ -41,36 +41,41 @@ let s:type = {
       \ 'name' : 'git',
       \ }
 
-function! s:type.detect(path, opts)"{{{
+function! s:type.detect(path, opts) "{{{
   let type = ''
-  let protocol = get(a:opts, 'type__protocol',
-        \ g:neobundle#types#git#default_protocol)
 
-  if a:path =~# '\<\(gh\|github\):\S\+\|://github.com/'
-    if a:path !~ '/'
+  let protocol = matchstr(a:path, '^[^:]\+\ze://')
+  if protocol == '' || a:path =~#
+        \'\<\%(gh\|github\|bb\|bitbucket\):\S\+'
+        \ || has_key(a:opts, 'type__protocol')
+    let protocol = get(a:opts, 'type__protocol',
+          \ g:neobundle#types#git#default_protocol)
+  endif
+
+  if a:path =~# '\<\%(gh\|github\):\S\+\|://github.com/'
+    if a:path =~ '/'
+      let name = substitute(split(a:path, ':')[-1],
+            \   '^//github.com/', '', '')
+      let uri =  (protocol ==# 'ssh') ?
+            \ 'git@github.com:' . name :
+            \ protocol . '://github.com/'. name
+    else
       " www.vim.org Vim scripts.
       let name = split(a:path, ':')[-1]
       let uri  = (protocol ==# 'ssh') ?
             \ 'git@github.com:vim-scripts/' :
             \ protocol . '://github.com/vim-scripts/'
       let uri .= name
-    else
-      let name = substitute(split(a:path, ':')[-1],
-            \   '^//github.com/', '', '')
-      let uri =  (protocol ==# 'ssh') ?
-            \ 'git@github.com:' . name :
-            \ protocol . '://github.com/'. name
     endif
 
     if uri !~ '\.git\s*$'
       " Add .git suffix.
       let uri .= '.git'
     endif
-
-    let type = 'git'
   elseif a:path =~# '\<\%(git@\|git://\)\S\+'
         \ || a:path =~# '\.git\s*$'
-    if a:path =~# '\<\(bb\|bitbucket\):\S\+'
+        \ || get(a:opts, 'type', '') ==# 'git'
+    if a:path =~# '\<\%(bb\|bitbucket\):\S\+'
       let name = substitute(split(a:path, ':')[-1],
             \   '^//bitbucket.org/', '', '')
       let uri = (protocol ==# 'ssh') ?
@@ -84,15 +89,14 @@ function! s:type.detect(path, opts)"{{{
     else
       let uri = a:path
     endif
-
-    let type = 'git'
+  else
+    return {}
   endif
 
-  return type == '' ?  {} :
-        \ { 'name': substitute(split(uri, '/')[-1],
-        \           '\.git\s*$','','i'), 'uri': uri, 'type' : type }
+  return { 'name': substitute(split(uri, '/')[-1],
+        \           '\.git\s*$','','i'), 'uri': uri, 'type' : 'git' }
 endfunction"}}}
-function! s:type.get_sync_command(bundle)"{{{
+function! s:type.get_sync_command(bundle) "{{{
   if !executable('git')
     return 'E: "git" command is not installed.'
   endif
@@ -101,7 +105,8 @@ function! s:type.get_sync_command(bundle)"{{{
     let cmd = 'git clone'
 
     if get(a:bundle, 'type__shallow', 1)
-          \ && a:bundle.uri !~ '^git@github\.com:'
+          \ && a:bundle.rev == ''
+          \ && a:bundle.uri !~# '^git@github\.com:'
       " Use shallow clone.
       let cmd .= ' --depth 1'
     endif
@@ -119,7 +124,7 @@ function! s:type.get_sync_command(bundle)"{{{
   endif
   return cmd
 endfunction"}}}
-function! s:type.get_revision_number_command(bundle)"{{{
+function! s:type.get_revision_number_command(bundle) "{{{
   if !executable('git')
     return ''
   endif
@@ -131,14 +136,21 @@ function! s:type.get_revision_number_command(bundle)"{{{
 
   return 'git rev-parse ' . rev
 endfunction"}}}
-function! s:type.get_revision_pretty_command(bundle)"{{{
+function! s:type.get_revision_pretty_command(bundle) "{{{
   if !executable('git')
     return ''
   endif
 
   return "git log -1 --pretty=format:'%h [%cr] %s'"
 endfunction"}}}
-function! s:type.get_log_command(bundle, new_rev, old_rev)"{{{
+function! s:type.get_commit_date_command(bundle) "{{{
+  if !executable('git')
+    return ''
+  endif
+
+  return "git log -1 --pretty=format:'%ct'"
+endfunction"}}}
+function! s:type.get_log_command(bundle, new_rev, old_rev) "{{{
   if !executable('git') || a:new_rev == '' || a:old_rev == ''
     return ''
   endif
@@ -153,12 +165,12 @@ function! s:type.get_log_command(bundle, new_rev, old_rev)"{{{
   " Test.
   " return "git log HEAD^^^^..HEAD --graph --pretty=format:'%h [%cr] %s'"
 endfunction"}}}
-function! s:type.get_revision_lock_command(bundle)"{{{
+function! s:type.get_revision_lock_command(bundle) "{{{
   if !executable('git') || a:bundle.rev == ''
     return ''
   endif
 
-  return 'git checkout ' . rev
+  return 'git checkout ' . a:bundle.rev
 endfunction"}}}
 
 let &cpo = s:save_cpo
