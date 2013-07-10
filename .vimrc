@@ -668,7 +668,7 @@ NeoBundleLazy 'Shougo/vimfiler', { 'autoload':
       \   { 'commands': ['VimFiler', 'VimFilerExplorer'] }
       \ }
 NeoBundle 'jelera/vim-javascript-syntax'
-NeoBundle 'jiangmiao/simple-javascript-indenter'
+"NeoBundle 'jiangmiao/simple-javascript-indenter'
 NeoBundle 'pangloss/vim-javascript'
 NeoBundle 'teramako/jscomplete-vim'
 NeoBundle 'kchmck/vim-coffee-script'
@@ -759,7 +759,7 @@ nnoremap <C-t> :Unite tab<CR>
 "nnoremap <C-s> :Unite -start-insert snippet<CR>
 " ファイル
 nnoremap <C-n> :Unite -start-insert bookmark file file/new file_rec/async file_mru<CR>
-nmap <C-m> :Unite file_mru<CR>
+"nmap <C-m> :Unite file_mru<CR>
 autocmd! FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
   "set timeoutlen=10
@@ -928,6 +928,20 @@ let g:neocomplcache_omni_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
 
 "}}}
 " ------------------------------------------------------------------------------
+" Neosnippet {{{
+" ------------------------------------------------------------------------------
+" Plugin key-mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+" Enable snipMate compatibility feature.
+let g:neosnippet#enable_snipmate_compatibility = 1
+
+" Tell Neosnippet about the other snippets
+let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets'
+" }}}
+" ------------------------------------------------------------------------------
 " vimfiler {{{
 " ------------------------------------------------------------------------------
 " vimfiler をサクサク起動する
@@ -1093,10 +1107,10 @@ autocmd QuickfixCmdPost make,grep,grepadd,vimgrep if len(getqflist()) != 0 | cop
 autocmd BufNewFile *.cpp 0r $MY_VIMRUNTIME/template/cpp.cpp
 autocmd BufNewFile *.rb 0r $MY_VIMRUNTIME/template/ruby.rb
 
-augroup BgHighlight
-    autocmd!
-    autocmd WinEnter * set number
-    autocmd WinLeave * set nonumber
-augroup END
+"augroup BgHighlight
+"    autocmd!
+"    autocmd WinEnter * set number
+"    autocmd WinLeave * set nonumber
+"augroup END
 "}}}
 "*******************

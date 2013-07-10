@@ -80,6 +80,27 @@ setopt share_history # share command history data
 autoload -U compinit
 compinit
 
+# Enter -> ls & git status
+function do_enter(){
+    if [ -n "$BUFFER" ]; then
+        zle accept-line
+        return 0
+    fi
+    echo
+    ls
+    # ↓おすすめ
+    # ls_abbrev
+    if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = 'true' ]; then
+        echo
+        echo -e "\e[0;33m--- git status ---\e[0m"
+        git status -sb
+    fi
+    zle reset-prompt
+    return 0
+}
+zle -N do_enter
+bindkey '^m' do_enter
+
 ## Alias configuration
 setopt complete_aliases # aliased ls needs if file/dir completions work
 alias where="command -v"
@@ -100,6 +121,7 @@ alias su="su -l"
 alias screen="export SCREEN=YES ; screen -U -T ${TERM}"
 alias emacs '/usr/local/bin/emcws -l ~/.emacs'
 alias g++='g++ -O2'
+alias oj="python ~/github/OnlineJudgeHelper/oj.py --setting='~/.OJH-setting.json'"
 
 #rlwrap
 #export RLWRAP_EDITOR='vim -c "set filetype=scheme'
