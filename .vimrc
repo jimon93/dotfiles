@@ -170,11 +170,11 @@ endif
 ""-------------------------------------------------------------------------------
 "" 補完・履歴 Complete
 ""-------------------------------------------------------------------------------
-set wildmenu               " コマンド補完を強化
-set wildchar=<tab>         " コマンド補完を開始するキー
-set wildmode=list:full     " リスト表示，最長マッチ
-set history=1000           " コマンド・検索パターンの履歴数
-set complete+=k            " 補完に辞書ファイル追加
+set wildmenu                   " コマンド補完を強化
+set wildchar=<tab>             " コマンド補完を開始するキー
+set wildmode=list:longest,full " リスト表示&共通部補完、マッチを完全に
+set history=1000               " コマンド・検索パターンの履歴数
+set complete+=k                " 補完に辞書ファイル追加
 
 cnoremap <C-p>  <Up>
 cnoremap <Up>   <C-p>
