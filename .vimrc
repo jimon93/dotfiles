@@ -1,37 +1,10 @@
-"** 目次 ** {{{
-" * 基礎
-"   - パス設定         UserRuntimePath
-"   - 基本設定         Basics
-"   - 設定ファイル     SettingFile
-"   - ステータスライン StatusLine
-"   - 表示             Apperance
-"   - インデント       Indent
-"   - 補完・履歴       Complete
-"   - 検索設定         Search
-"   - 移動設定         Move
-"   - エンコーディング Encoding
-"   - カラー関連       Colors
-"   - 編集関連         Edit
-"   - 畳み込み         Fold
-" * Plugin
-"   - Pluginの読み込み Load
-"   - Align
-"   - Unite
-"   - Neocomplcache
-"   - vimfiler
-"   - quickrun
-"   - vim-ref
-" * その他
-
-"}}}
-"*******************
 " 基礎          "{{{
 "*******************
+" 現在のグループに対する「全て」の自動コマンドを削除
 autocmd!
-
-"----------------------------------------
-" パス設定 UserRuntimePath
-"----------------------------------------
+"------------------------------------------------------------------------------
+" パス設定 UserRuntimePath                                                  {{{
+"------------------------------------------------------------------------------
 "Windows, unixでのruntimepathの違いを吸収するためのもの。
 "$MY_VIMRUNTIMEはユーザーランタイムディレクトリを示す。
 ":echo $MY_VIMRUNTIMEで実際のパスを確認できます。
@@ -49,9 +22,9 @@ elseif isdirectory($VIM . '\Dropbox')
   let $MY_DROPBOX = $HOME.'\Dropbox'
 endif
 
-
+"}}}
 "-------------------------------------------------------------------------------
-" 基本設定 Basics
+" 基本設定 Basics                                                            {{{
 "-------------------------------------------------------------------------------
 set nocompatible                 " Vimっす。vi互換なしっす。
 let mapleader = ' '              " キーマップリーダー
@@ -81,7 +54,7 @@ set clipboard+=unnamed
 "set guioptions+=a
 "set ttymouse=xterm2
 
-
+"}}}
 "-------------------------------------------------------------------------------
 " ステータスライン StatusLine
 "-------------------------------------------------------------------------------
@@ -429,8 +402,6 @@ vnoremap p <Esc>:let current_reg = @"<CR>gvdi<C-R>=current_reg<CR><Esc>
 set expandtab
 "set noexpandtab
 
-" コンマの後に自動的にスペースを挿入
-"inoremap , ,<Space>
 " XMLの閉タグを自動挿入
 augroup MyXML
   autocmd Filetype xml inoremap <buffer> </ </<C-x><C-o>
@@ -453,7 +424,11 @@ autocmd BufWritePre * call <SID>remove_dust()
 noremap <Leader><Leader> :up<CR>
 
 "Visual mode を q で抜ける
+"なぜか<esc>で抜けるともたつく
 vnoremap q <esc>
+
+"Visual mode で . をすると:normal.が実行される
+vnoremap . :normal.<CR>
 
 "-------------------------------------------------------------------------------
 " 畳み込み Fold
@@ -461,7 +436,6 @@ vnoremap q <esc>
 set foldmethod=marker
 "set foldclose=all
 "set foldcolumn=4
-
 "各種変数 "{{{
 "g:foldCCtext_shorten foldtextが長すぎるときこの値に切り詰め（規定:77）
 if !exists('g:foldCCtext_shorten')
@@ -485,8 +459,6 @@ if !exists('g:foldCCnavi_shorten')
   let g:foldCCnavi_shorten = 60
 endif
  "}}}
-
-
 "折り畳み関数"{{{
 function! FoldCCtext()
   "rol; set foldtext=FoldCCtext()に設定して折り畳んだときのテキスト生成
@@ -517,8 +489,6 @@ function! FoldCCtext()
         \ line, v:folddashes,    v:foldend-v:foldstart+1, v:foldlevel,    v:folddashes)
 endfunction
 "}}}
-
-
 function! FoldCCnavi() "{{{
   "wrk; 現在行の折り畳みナビゲート文字列を返す
   if foldlevel('.')
@@ -564,8 +534,6 @@ function! FoldCCnavi() "{{{
   endif
 endfunction
 "}}}
-
-
 function! s:rm_CmtAndFmr(lnum) "{{{
   "wrk; a:lnum行目の文字列を取得し、そこからcommentstringとfoldmarkersを除いたものを返す
   "rol; 折り畳みマーカー（とそれを囲むコメント文字）を除いた純粋な行の内容を得る
@@ -586,8 +554,6 @@ function! s:rm_CmtAndFmr(lnum) "{{{
   let line = substitute(line,'\V\%('.comment[0].'\)\?\s\*'.foldmarkers[0].'\%(\d\+\)\?\s\*\%('.comment_end.'\)\?', '','')
   return line
 endfunction "}}}
-
-
 function! s:surgery_line(lnum) "{{{
   "wrk; a:lnum行目の内容を得て、マルチバイトも考慮しながら切り詰めを行ったものを返す
   let line = substitute(s:rm_CmtAndFmr(a:lnum),'\V\s','','g')
@@ -595,14 +561,10 @@ function! s:surgery_line(lnum) "{{{
   let alignment = g:foldCCnavi_shorten + regardMultibyte
   return s:arrange_multibyte_str(line[:alignment])
 endfunction "}}}
-
-
 "マルチバイト文字が途中で切れると発生する<83><BE>などの文字を除外させる
 function! s:arrange_multibyte_str(str) "{{{
   return substitute(strtrans(a:str), '<\x\x>','','g')
 endfunction "}}}
-
-
 set foldtext=FoldCCtext()
 " .txtの場合 アウトライン用インデント設定 {{{
 function! OutLineFoldSetting(lnum)
@@ -624,7 +586,6 @@ function! OutLineFoldSetting(lnum)
 endfunction
 autocmd BufEnter *.txt setlocal foldmethod=expr foldexpr=OutLineFoldSetting(v:lnum) foldlevel=1
 "}}}
-
 "}}}
 "*******************
 " Plugin        "{{{
@@ -1113,4 +1074,3 @@ autocmd BufNewFile *.rb 0r $MY_VIMRUNTIME/template/ruby.rb
 "    autocmd WinLeave * set nonumber
 "augroup END
 "}}}
-"*******************
