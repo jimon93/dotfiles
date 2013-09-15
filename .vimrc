@@ -22,6 +22,7 @@ elseif isdirectory($VIM . '\Dropbox')
   let $MY_DROPBOX = $HOME.'\Dropbox'
 endif
 
+cnoremap <expr> %% getcmdtype() == ':' ? expand('%:h') : '%%'
 "}}}
 "-------------------------------------------------------------------------------
 " 基本設定 Basics                                                            {{{
@@ -234,11 +235,11 @@ inoremap <c-k> <Up>
 "inoremap <C-h> <Left>
 "inoremap <C-l> <Right>
 
-" command line mode での移動
-cnoremap <c-a> <Home>
-cnoremap <c-e> <End>
-cnoremap <c-f> <Right>
-cnoremap <c-b> <Left>
+"" command line mode での移動
+"cnoremap <c-a> <Home>
+"cnoremap <c-e> <End>
+"cnoremap <c-f> <Right>
+"cnoremap <c-b> <Left>
 
 "" F2で前のバッファ
 "noremap <F2> <ESC>:bp<CR>
@@ -280,7 +281,7 @@ set virtualedit+=block
 vnoremap v $h
 
 " カレントディレクトリをファイルのディレクトリに変更する
-nnoremap <Leader>cd :cd %:h<CR>:pwd<CR>
+"nnoremap <Leader>cd :cd %:h<CR>:pwd<CR>
 "nnoremap <Leader>home  :cd $HOME<CR>:pwd<CR>
 
 
