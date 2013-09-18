@@ -648,6 +648,8 @@ NeoBundle 'https://github.com/tomasr/molokai.git'
 NeoBundle 'https://github.com/altercation/solarized.git'
 "}}}
 filetype plugin indent on
+" デフォルトのPluginを有効化
+runtime macros/matchit.vim
 NeoBundleCheck
 " ------------------------------------------------------------------------------
 " VimShell                                                                   {{{
