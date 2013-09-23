@@ -192,7 +192,8 @@ set incsearch  " インクリメンタルサーチ
 set hlsearch   " 検索文字をハイライト
 
 "Escの2回押しでハイライト消去
-nnoremap <buffer> <ESC><ESC> :nohlsearch<CR><ESC>
+"nnoremap <buffer> <ESC><ESC> :nohlsearch<CR><ESC>
+nnoremap <silent> <C-l> :<C-u>nohlsearch<CR><C-l>
 
 "選択した文字列を検索
 vnoremap <silent> // y/<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
