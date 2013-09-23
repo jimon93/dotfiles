@@ -15,6 +15,13 @@ if [[ -f ~/.nodebrew/nodebrew ]]; then
   nodebrew use latest > /dev/null
 fi
 
+# rbenv
+export PATH=$HOME/.rbenv/shims:$PATH
+#if [[ -f ~/.rbenv ]]; then
+#  export PATH=$HOME/.rbenv/shims:$PATH
+#fi
+
+
 ## Default shell configuration set prompt
 autoload colors
 colors
