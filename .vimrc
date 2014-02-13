@@ -196,9 +196,17 @@ set hlsearch   " 検索文字をハイライト
 nnoremap <silent> <C-l> :<C-u>nohlsearch<CR><C-l>
 
 "選択した文字列を検索
-vnoremap <silent> // y/<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
+xnoremap * :<C-u>call <SID>VSetSearch()<CR>/<C-R>=@/<CR><CR>
+xnoremap # :<C-u>call <SID>VSetSearch()<CR>?<C-R>=@/<CR><CR>
+function! s:VSetSearch()
+  let temp = @s
+  norm! gv"sy
+  let @/ = '\V'.substitute(escape(@s,'/\'), '\n', '\\n', 'g')
+  let @s = temp
+endfunction
+
 "選択した文字列を置換
-vnoremap /r "xy:%s/<C-R>=escape(@x, '\\/.*$^~[]')<CR>//gc<Left><Left><Left>
+"vnoremap /r "xy:%s/<C-R>=escape(@x, '\\/.*$^~[]')<CR>//gc<Left><Left><Left>
 
 "s*置換後文字列/g<Cr>でカーソル下のキーワードを置換
 "nnoremap <expr> s* ':%substitute/\<' . expand('<cword>') . '\>//g<Left><Left>'
@@ -621,25 +629,25 @@ NeoBundleLazy 'Shougo/vimshell', { 'autoload': { 'commands' : "VimShell" } }
 NeoBundle 'Shougo/neocomplcache'
 NeoBundle 'Shougo/neosnippet'
 NeoBundle 'https://github.com/Shougo/unite.vim.git'
-NeoBundle 'https://github.com/scrooloose/syntastic.git'
-NeoBundle 'https://github.com/nathanaelkane/vim-indent-guides.git'
+"NeoBundle 'https://github.com/scrooloose/syntastic.git'
+"NeoBundle 'https://github.com/nathanaelkane/vim-indent-guides.git'
 NeoBundle 'tsaleh/vim-align'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'thinca/vim-quickrun'
-NeoBundle 'Lokaltog/vim-easymotion'
+"NeoBundle 'Lokaltog/vim-easymotion'
 NeoBundleLazy 'Shougo/vimfiler', { 'autoload':
       \   { 'commands': ['VimFiler', 'VimFilerExplorer'] }
       \ }
 NeoBundle 'jelera/vim-javascript-syntax'
-"NeoBundle 'jiangmiao/simple-javascript-indenter'
+NeoBundle 'jiangmiao/simple-javascript-indenter'
 NeoBundle 'pangloss/vim-javascript'
-NeoBundle 'teramako/jscomplete-vim'
+"NeoBundle 'teramako/jscomplete-vim'
 NeoBundle 'kchmck/vim-coffee-script'
-"NeoBundle 'Sixeight/unite-grep'
+NeoBundle 'Sixeight/unite-grep'
 NeoBundle 'digitaltoad/vim-jade'
 NeoBundle 'tpope/vim-markdown'
 NeoBundle 'vim-jp/vimdoc-ja'
-NeoBundle 'hail2u/vim-css3-syntax'
+"NeoBundle 'hail2u/vim-css3-syntax'
 "NeoBundle 'Shougo/unite-ssh'
 "NeoBundle 'kana/vim-smartinput'
 "NeoBundle 'thinca/vim-qfreplace'
@@ -655,46 +663,46 @@ NeoBundleCheck
 " ------------------------------------------------------------------------------
 " VimShell                                                                   {{{
 " ------------------------------------------------------------------------------
-let s:bundle = neobundle#get('vimshell')
-function! s:bundle.hooks.on_source(bundle)
-  let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-  "let g:vimshell_right_prompt = 'vcs#info("(%s)-[%b]", "(%s)-[%b|%a]")'
-  let g:vimshell_enable_smart_case = 1
-
-  if has('win32') || has('win64')
-    " Display user name on Windows.
-    let g:vimshell_prompt = $USERNAME."% "
-  else
-    " Display user name on Linux.
-    let g:vimshell_prompt = $USER."% "
-
-    call vimshell#set_execute_file('bmp,jpg,png,gif', 'gexe eog')
-    call vimshell#set_execute_file('mp3,m4a,ogg', 'gexe amarok')
-    let g:vimshell_execute_file_list['zip'] = 'zipinfo'
-    call vimshell#set_execute_file('tgz,gz', 'gzcat')
-    call vimshell#set_execute_file('tbz,bz2', 'bzcat')
-  endif
-
-  " Initialize execute file list.
-  let g:vimshell_execute_file_list = {}
-  call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
-  let g:vimshell_execute_file_list['rb'] = 'ruby'
-  let g:vimshell_execute_file_list['pl'] = 'perl'
-  let g:vimshell_execute_file_list['py'] = 'python'
-  call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
-
-  autocmd FileType vimshell
-  \| call vimshell#hook#add('chpwd', 'my_chpwd', 'g:my_chpwd')
-
-  function! g:my_chpwd(args, context)
-    call vimshell#execute('ls')
-  endfunction
-
-  autocmd! FileType vimshell call g:my_vimshell_settings()
-  function! g:my_vimshell_settings()
-    imap <buffer> <C-p> <ESC>:call <Plug>(vimshell_int_previous_prompt)<Cr>O
-  endfunction
-endfunction
+"let s:bundle = neobundle#get('vimshell')
+"function! s:bundle.hooks.on_source(bundle)
+"  let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+"  "let g:vimshell_right_prompt = 'vcs#info("(%s)-[%b]", "(%s)-[%b|%a]")'
+"  let g:vimshell_enable_smart_case = 1
+"
+"  if has('win32') || has('win64')
+"    " Display user name on Windows.
+"    let g:vimshell_prompt = $USERNAME."% "
+"  else
+"    " Display user name on Linux.
+"    let g:vimshell_prompt = $USER."% "
+"
+"    call vimshell#set_execute_file('bmp,jpg,png,gif', 'gexe eog')
+"    call vimshell#set_execute_file('mp3,m4a,ogg', 'gexe amarok')
+"    let g:vimshell_execute_file_list['zip'] = 'zipinfo'
+"    call vimshell#set_execute_file('tgz,gz', 'gzcat')
+"    call vimshell#set_execute_file('tbz,bz2', 'bzcat')
+"  endif
+"
+"  " Initialize execute file list.
+"  let g:vimshell_execute_file_list = {}
+"  call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
+"  let g:vimshell_execute_file_list['rb'] = 'ruby'
+"  let g:vimshell_execute_file_list['pl'] = 'perl'
+"  let g:vimshell_execute_file_list['py'] = 'python'
+"  call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
+"
+"  autocmd FileType vimshell
+"  \| call vimshell#hook#add('chpwd', 'my_chpwd', 'g:my_chpwd')
+"
+"  function! g:my_chpwd(args, context)
+"    call vimshell#execute('ls')
+"  endfunction
+"
+"  autocmd! FileType vimshell call g:my_vimshell_settings()
+"  function! g:my_vimshell_settings()
+"    imap <buffer> <C-p> <ESC>:call <Plug>(vimshell_int_previous_prompt)<Cr>O
+"  endfunction
+"endfunction
 "}}}
 " ------------------------------------------------------------------------------
 " Align {{{
@@ -804,7 +812,7 @@ let g:acp_enableAtStartup = 0
 " Use neocomplcache.
 let g:neocomplcache_enable_at_startup = 1
 " Use smartcase.
-let g:neocomplcache_enable_smart_case = 1
+"let g:neocomplcache_enable_smart_case = 1
 " Set minimum syntax keyword length.
 let g:neocomplcache_min_syntax_length = 3
 let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
@@ -989,23 +997,23 @@ noremap <Leader>r :QuickRun<space>
 " ------------------------------------------------------------------------------
 " indent-guides {{{
 " ------------------------------------------------------------------------------
-colorscheme default
-"let g:indent_guides_enable_on_vim_startup=1
-"let g:indent_guides_auto_colors=0
-let g:indent_guides_start_level=1
-
-hi IndentGuidesOdd  ctermbg=darkblue
-hi IndentGuidesEven ctermbg=darkred
-
-let g:indent_guides_color_change_percent=20
+"colorscheme default
+""let g:indent_guides_enable_on_vim_startup=1
+""let g:indent_guides_auto_colors=0
+"let g:indent_guides_start_level=1
+"
+"hi IndentGuidesOdd  ctermbg=darkblue
+"hi IndentGuidesEven ctermbg=darkred
+"
+"let g:indent_guides_color_change_percent=20
 "}}}
 " ------------------------------------------------------------------------------
 " EasyMotion {{{
 " ------------------------------------------------------------------------------
 " ホームポジションに近いキーを使う
-let g:EasyMotion_keys='hjklasdfgyuiopqwertnmzxcvbHJKLASDFGYUIOPQWERTNMZXCVB'
-let g:EasyMotion_leader_key = '<Leader>'
-let g:EasyMotion_grouping=1
+"let g:EasyMotion_keys='hjklasdfgyuiopqwertnmzxcvbHJKLASDFGYUIOPQWERTNMZXCVB'
+"let g:EasyMotion_leader_key = '<Leader>'
+"let g:EasyMotion_grouping=1
 "}}}
 " ------------------------------------------------------------------------------
 "  QFixHowm {{{

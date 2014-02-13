@@ -43,11 +43,15 @@ template<typename T> string toString(T& v){
 } // }}}
 // inspect {{{
 string inspect( string str );
+string inspect( bool str );
 template<typename T> string inspect( T v );
 template<typename T,typename U> string inspect( pair<T,U> v );
 template<typename T> string inspect( vector<T> v );
 string inspect( string str ){
   return "\"" + str + "\"";
+}
+string inspect( bool flag ){
+  return flag ? "True" : "False";
 }
 template<typename T> string inspect( T v ){
   return toString<T>( v );
@@ -65,11 +69,11 @@ template<typename T> string inspect( vector<T> v ){
 }
 // }}}
 // puts {{{
-template<typename T> void puts( T val ){
-  cout << inspect(val) << endl;
-}
-template<typename T> void puts( string name, T val ){
-  cout << name << ": " << inspect(val) << endl;
+void puts() {};
+template<class First, class... Rest>
+void puts(const First& first, const Rest&... rest ){
+  cout << inspect(first) << endl;
+  puts(rest...);
 }
 // }}}
 // END CUT HERE }}}
