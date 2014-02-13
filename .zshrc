@@ -127,7 +127,7 @@ alias df="df -h"
 alias su="su -l"
 alias screen="export SCREEN=YES ; screen -U -T ${TERM}"
 alias emacs '/usr/local/bin/emcws -l ~/.emacs'
-alias g++='g++ -O2'
+alias g++='g++ -O2 -std=c++11'
 alias oj="python ~/github/OnlineJudgeHelper/oj.py --setting='~/.OJH-setting.json'"
 
 #rlwrap
@@ -224,3 +224,6 @@ fi
 
 # This loads NVM
 [ -f "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh"
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
