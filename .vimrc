@@ -628,6 +628,7 @@ NeoBundle 'Shougo/vimproc',{
 NeoBundleLazy 'Shougo/vimshell', { 'autoload': { 'commands' : "VimShell" } }
 NeoBundle 'Shougo/neocomplcache'
 NeoBundle 'Shougo/neosnippet'
+NeoBundle 'Shougo/neosnippet-snippets'
 NeoBundle 'https://github.com/Shougo/unite.vim.git'
 "NeoBundle 'https://github.com/scrooloose/syntastic.git'
 "NeoBundle 'https://github.com/nathanaelkane/vim-indent-guides.git'
@@ -731,7 +732,7 @@ nnoremap <C-t> :Unite tab<CR>
 " スニペット
 "nnoremap <C-s> :Unite -start-insert snippet<CR>
 " ファイル
-nnoremap <C-n> :Unite -start-insert bookmark file file/new file_rec/async file_mru<CR>
+nnoremap <C-n> :Unite -start-insert bookmark file file/new file_rec/async<CR>
 "nmap <C-m> :Unite file_mru<CR>
 autocmd! FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
