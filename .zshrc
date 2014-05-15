@@ -2,7 +2,7 @@
 export LANG=ja_JP.UTF-8
 export LC_CTYPE=ja_JP.UTF-8
 export LANG=ja_JP.UTF-8
-export LC_ALL=ja_JP.UTF-8
+#export LC_ALL=ja_JP.UTF-8
 export PAGER=less
 export EDITOR=vim
 
@@ -21,6 +21,8 @@ export PATH=$HOME/.rbenv/shims:$PATH
 #  export PATH=$HOME/.rbenv/shims:$PATH
 #fi
 
+# chef
+export PATH=$PATH:/opt/chef/bin
 
 ## Default shell configuration set prompt
 autoload colors
