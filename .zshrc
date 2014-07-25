@@ -21,6 +21,10 @@ export PATH=$HOME/.rbenv/shims:$PATH
 #  export PATH=$HOME/.rbenv/shims:$PATH
 #fi
 
+# scala version manager
+export SCALA_HOME=~/.svm/current/rt
+export PATH=$SCALA_HOME/bin:$PATH
+
 # chef
 export PATH=$PATH:/opt/chef/bin
 
@@ -229,3 +233,6 @@ fi
 
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
+
+# sbtとかmavenのビルドを早くする
+export JAVA_OPTS="$JAVA_OPTS -Dhttp.proxyHost=leica -Dhttp.proxyPort=8080"
