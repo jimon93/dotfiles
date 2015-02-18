@@ -17,9 +17,10 @@ fi
 
 # rbenv
 export PATH=$HOME/.rbenv/shims:$PATH
-#if [[ -f ~/.rbenv ]]; then
-#  export PATH=$HOME/.rbenv/shims:$PATH
-#fi
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+# nodebrew
+export PATH=$HOME/.nodebrew/current/bin:$PATH
 
 # scala version manager
 export SCALA_HOME=~/.svm/current/rt
@@ -236,3 +237,4 @@ export PATH="/usr/local/heroku/bin:$PATH"
 
 # sbtとかmavenのビルドを早くする
 export JAVA_OPTS="$JAVA_OPTS -Dhttp.proxyHost=leica -Dhttp.proxyPort=8080"
+export SBT_OPTS="-XX:+HeapDumpOnOutOfMemoryError -server -XX:ReservedCodeCacheSize=2g -Xmx4g -Xss4M -XX:MaxPermSize=2024M -XX:+DoEscapeAnalysis -XX:+UseCompressedOops -XX:+CMSClassUnloadingEnabled -XX:+UseCodeCacheFlushing"
