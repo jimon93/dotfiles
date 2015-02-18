@@ -639,9 +639,11 @@ NeoBundle 'thinca/vim-quickrun'
 NeoBundleLazy 'Shougo/vimfiler', { 'autoload':
       \   { 'commands': ['VimFiler', 'VimFilerExplorer'] }
       \ }
-NeoBundle 'jelera/vim-javascript-syntax'
+" javascript
+NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
 NeoBundle 'jiangmiao/simple-javascript-indenter'
 NeoBundle 'pangloss/vim-javascript'
+
 "NeoBundle 'teramako/jscomplete-vim'
 NeoBundle 'kchmck/vim-coffee-script'
 NeoBundle 'Sixeight/unite-grep'
@@ -1047,6 +1049,15 @@ noremap <Leader>r :QuickRun<space>
 " ------------------------------------------------------------------------------
 let g:jscomplete_use = ['dom', 'moz', 'es6th']
 "}}}
+" ------------------------------------------------------------------------------
+"  simple-javascript-indenter {{{
+" ------------------------------------------------------------------------------
+" この設定入れるとshiftwidthを1にしてインデントしてくれる
+let g:SimpleJsIndenter_BriefMode = 1
+" この設定入れるとswitchのインデントがいくらかマシに
+let g:SimpleJsIndenter_CaseIndentLevel = -1
+" ------------------------------------------------------------------------------
+" }}}
 
 "}}}
 "*******************
