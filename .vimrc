@@ -726,7 +726,7 @@ vnoremap <C-a> :Align<Space>
 let g:unite_source_history_yank_enable=1
 nnoremap <C-y> :Unite -start-insert history/yank<CR>
 " バッファ
-nnoremap <C-p> :Unite -start-insert buffer_tab<CR>
+nnoremap <C-p> :Unite -start-insert buffer<CR>
 " タブ
 nnoremap <C-t> :Unite tab<CR>
 " スニペット
@@ -756,50 +756,50 @@ endfunction
 " 設定ファイル SettingFile
 "------------------------------------------------------------
 " 読み込み
-if !exists("s:setting_load_function")
-  let s:setting_load_function="loaded"
-  function g:setting_load()
-    if exists("$MYVIMRC")
-      source $MYVIMRC
-    endif
-    if exists("$MYGVIMRC")
-      source $MYGVIMRC
-    endif
-  endfunction
-endif
+"if !exists("s:setting_load_function")
+"  let s:setting_load_function="loaded"
+"  function g:setting_load()
+"    if exists("$MYVIMRC")
+"      source $MYVIMRC
+"    endif
+"    if exists("$MYGVIMRC")
+"      source $MYGVIMRC
+"    endif
+"  endfunction
+"endif
 "noremap <Leader>l <silent> :call g:setting_load()<Cr>
 " ソースの作成
-let s:unite_source = {
-      \'name'        : 'setting',
-      \'description' : 'candidates from setting files',
-      \}
-function! s:unite_source.gather_candidates(args,context)
-  let data = [
-              \['vimrc file    -- Basics setting file', $MYVIMRC],
-              \['gvimrc file   -- GUI setting file', $MYGVIMRC],
-              \['ftplugin file -- FileType Plugin setting file',
-              \  $MY_VIMRUNTIME.'/after/ftplugin/'.&filetype.'.vim'],
-              \['syntax file   -- Syntax Plugin setting file',
-              \  $MY_VIMRUNTIME.'/after/syntax/'.&filetype.'.vim']
-             \]
-  let result = map( data, '{
-        \"word"              : v:val[0],
-        \"source"            : "setting",
-        \"kind"              : "file",
-        \"action__directory" : fnamemodify( v:val[1], ":h"),
-        \"action__path"      : v:val[1],
-        \}' )
-  call insert( result,{
-        \"word"              : "load files    -- Load from setting files",
-        \"source"            : "setting",
-        \"kind"              : "command",
-        \"action__command"   : ":call g:setting_load()",
-      \}, 0 )
-  return result
-endfunction
-call unite#define_source( s:unite_source )
-unlet s:unite_source
-nnoremap <Leader>s :Unite -no-start-insert setting<CR>
+"let s:unite_source = {
+"      \'name'        : 'setting',
+"      \'description' : 'candidates from setting files',
+"      \}
+"function! s:unite_source.gather_candidates(args,context)
+"  let data = [
+"              \['vimrc file    -- Basics setting file', $MYVIMRC],
+"              \['gvimrc file   -- GUI setting file', $MYGVIMRC],
+"              \['ftplugin file -- FileType Plugin setting file',
+"              \  $MY_VIMRUNTIME.'/after/ftplugin/'.&filetype.'.vim'],
+"              \['syntax file   -- Syntax Plugin setting file',
+"              \  $MY_VIMRUNTIME.'/after/syntax/'.&filetype.'.vim']
+"             \]
+"  let result = map( data, '{
+"        \"word"              : v:val[0],
+"        \"source"            : "setting",
+"        \"kind"              : "file",
+"        \"action__directory" : fnamemodify( v:val[1], ":h"),
+"        \"action__path"      : v:val[1],
+"        \}' )
+"  call insert( result,{
+"        \"word"              : "load files    -- Load from setting files",
+"        \"source"            : "setting",
+"        \"kind"              : "command",
+"        \"action__command"   : ":call g:setting_load()",
+"      \}, 0 )
+"  return result
+"endfunction
+"call unite#define_source( s:unite_source )
+"unlet s:unite_source
+"nnoremap <Leader>s :Unite -no-start-insert setting<CR>
 
 " Unite Comand
 command! Mapping Unite output:map|map!|lmap
